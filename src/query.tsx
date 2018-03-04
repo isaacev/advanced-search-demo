@@ -19,11 +19,11 @@ interface QueryState {
 }
 
 export class Query extends React.Component<QueryProps, QueryState> {
+  private inputComponentRef : Input | null = null
+
   constructor (props: QueryProps) {
     super(props)
-    this.handleFocus = this.handleFocus.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleBlur = this.handleBlur.bind(this)
     this.handleSpecialKey = this.handleSpecialKey.bind(this)
     this.handleMouseMove = this.handleMouseMove.bind(this)
 
@@ -39,13 +39,6 @@ export class Query extends React.Component<QueryProps, QueryState> {
     }
   }
 
-  handleFocus () {
-    this.setState({
-      showing: true,
-      pending: NONE_PENDING,
-    })
-  }
-
   handleChange (newValue: string) {
     const guesses = engine.guess(newValue)
     this.setState({
@@ -57,14 +50,6 @@ export class Query extends React.Component<QueryProps, QueryState> {
     if (this.props.onDebugGuess) {
       this.props.onDebugGuess(guesses)
     }
-  }
-
-  handleBlur () {
-    const shouldShow = (this.state.literal.length > 0)
-    this.setState({
-      showing: shouldShow,
-      pending: shouldShow ? this.state.pending : NONE_PENDING,
-    })
   }
 
   handleSpecialKey (key: 'enter' | 'esc' | 'up' | 'down') {
@@ -107,16 +92,18 @@ export class Query extends React.Component<QueryProps, QueryState> {
       literal,
       guesses,
     })
+    if (this.inputComponentRef) {
+      this.inputComponentRef.focus()
+    }
   }
 
   render () {
     return (
       <header id="query">
         <Input
+          ref={self => this.inputComponentRef = self}
           value={this.state.literal}
-          onFocus={this.handleFocus}
           onChange={this.handleChange}
-          onBlur={this.handleBlur}
           onSpecialKey={this.handleSpecialKey}
         />
         <Guesses showing={this.state.showing}>
@@ -137,17 +124,23 @@ export class Query extends React.Component<QueryProps, QueryState> {
 
 interface InputProps {
   value        : string
-  onFocus      : () => void
   onChange     : (newValue: string) => void
-  onBlur       : () => void
   onSpecialKey : (key: 'up' | 'down' | 'enter' | 'esc') => void
 }
 
 class Input extends React.PureComponent<InputProps> {
+  private inputElementRef : HTMLInputElement | null
+
   constructor (props: InputProps) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
+  }
+
+  public focus () {
+    if (this.inputElementRef) {
+      this.inputElementRef.focus()
+    }
   }
 
   handleChange (event: React.ChangeEvent<HTMLInputElement>) {
@@ -175,10 +168,9 @@ class Input extends React.PureComponent<InputProps> {
         type="text"
         autoFocus={true}
         value={this.props.value}
-        onFocus={this.props.onFocus}
         onChange={this.handleChange}
-        onBlur={this.props.onBlur}
         onKeyDown={this.handleKeyDown}
+        ref={self => this.inputElementRef = self}
       />
     )
   }
