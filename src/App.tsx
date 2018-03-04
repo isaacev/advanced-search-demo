@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Query } from './query'
+import Database from './database'
 
 class JsonBlob extends React.PureComponent<{ title: string, data: Object }> {
   render () {
@@ -25,6 +26,7 @@ class App extends React.Component<{}, { guesses: Object }> {
       <main>
         <Query onNewGuesses={(guesses) => this.setState({ guesses })} />
         <JsonBlob title="Guesses" data={this.state.guesses} />
+        <JsonBlob title="Example Data" data={Database} />
       </main>
     )
   }
