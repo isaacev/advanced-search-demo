@@ -566,19 +566,22 @@ export class Guess {
     }
   }
 
-  toString () {
+  toString (withPlaceholders: boolean = true) {
     let guess = this.name()
     if (this.hasSymbol()) {
       guess += ' ' + this.symbol()
       if (this.hasExample()) {
-        guess += ' ' + this.example()
+        return guess + ' ' + this.example()
+      } else if (withPlaceholders) {
+        return guess + ` <${this.type()}>`
       } else {
-        guess += ` <${this.type()}>`
+        return guess + ' '
       }
+    } else if (withPlaceholders) {
+      return guess + ` <operator> <${this.type()}>`
     } else {
-      guess += ` <operator> <${this.type()}>`
+      return guess + ' '
     }
-    return guess
   }
 }
 

@@ -74,7 +74,8 @@ export class Query extends React.Component<QueryProps, QueryState> {
 
     switch (key) {
       case 'enter':
-        // TODO
+        this.handleClick(this.state.guesses[this.state.pending])
+        this.setState({ pending: NONE_PENDING })
         break
       case 'esc':
         this.setState({ pending: NONE_PENDING })
@@ -106,8 +107,13 @@ export class Query extends React.Component<QueryProps, QueryState> {
     })
   }
 
-  handleClick (guess: lang.Guess, index: number) {
-    // ...
+  handleClick (guess: lang.Guess) {
+    const literal = guess.toString(false)
+    const guesses = engine.guess(literal)
+    this.setState({
+      literal,
+      guesses,
+    })
   }
 
   render () {
@@ -128,7 +134,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
               hovered={i === this.state.pending}
               onMouseEnter={() => this.handleMouseEnter(i)}
               onMouseLeave={this.handleMouseLeave}
-              onClick={(guess) => this.handleClick(guess, i)}
+              onClick={(guess) => this.handleClick(guess)}
             />
           )}
         </Guesses>
