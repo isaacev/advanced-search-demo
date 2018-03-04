@@ -112,6 +112,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
               guess={guess}
               hovered={i === this.state.pending}
               onMouseMove={() => this.handleMouseMove(i)}
+              onMouseLeave={() => this.setState({ pending: NONE_PENDING })}
               onClick={(guess) => this.handleClick(guess)}
             />
           )}
@@ -186,10 +187,11 @@ class Guesses extends React.PureComponent<{ showing: boolean }> {
 }
 
 interface GuessProps {
-  guess       : lang.Guess
-  hovered     : boolean
-  onMouseMove : () => void
-  onClick     : (guess: lang.Guess) => void
+  guess        : lang.Guess
+  hovered      : boolean
+  onMouseMove  : () => void
+  onMouseLeave : () => void
+  onClick      : (guess: lang.Guess) => void
 }
 
 class Guess extends React.PureComponent<GuessProps> {
@@ -198,6 +200,7 @@ class Guess extends React.PureComponent<GuessProps> {
       <li
         className={'query-guess' + (this.props.hovered ? ' hovered' : '')}
         onMouseMove={this.props.onMouseMove}
+        onMouseLeave={this.props.onMouseLeave}
         onClick={() => this.props.onClick(this.props.guess)}
       >
         <FilterSpan name={this.props.guess.name()} />
