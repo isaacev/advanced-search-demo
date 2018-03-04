@@ -7,6 +7,10 @@ const engine = new lang.QueryEngine(Grammar)
 
 const NONE_PENDING = -1
 
+interface QueryProps {
+  onDebugGuess? : (guesses: lang.Guess[]) => void
+}
+
 interface QueryState {
   literal : string
   guesses : lang.Guess[]
@@ -14,8 +18,8 @@ interface QueryState {
   pending : number
 }
 
-export class Query extends React.Component<{}, QueryState> {
-  constructor (props: {}) {
+export class Query extends React.Component<QueryProps, QueryState> {
+  constructor (props: QueryProps) {
     super(props)
     this.handleFocus = this.handleFocus.bind(this)
     this.handleChange = this.handleChange.bind(this)
@@ -30,6 +34,10 @@ export class Query extends React.Component<{}, QueryState> {
       showing: false,
       pending: NONE_PENDING,
     }
+
+    if (this.props.onDebugGuess) {
+      this.props.onDebugGuess(this.state.guesses)
+    }
   }
 
   handleFocus () {
@@ -40,11 +48,16 @@ export class Query extends React.Component<{}, QueryState> {
   }
 
   handleChange (newValue: string) {
+    const guesses = engine.guess(newValue)
     this.setState({
       literal: newValue,
-      guesses: engine.guess(newValue),
+      guesses: guesses,
       pending: NONE_PENDING,
     })
+
+    if (this.props.onDebugGuess) {
+      this.props.onDebugGuess(guesses)
+    }
   }
 
   handleBlur () {
