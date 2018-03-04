@@ -626,10 +626,6 @@ export class Guess {
  */
 
 class Oracle {
-  static query (lexer: Lexer, grammar: Grammar): Guess[] {
-    return Oracle.filter(lexer, grammar)
-  }
-
   // TODO: good grief this function needs to be broken down.
   static filter (lexer: Lexer, grammar: Grammar): Guess[] {
     const advice = [] as Guess[]
