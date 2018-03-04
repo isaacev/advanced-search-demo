@@ -9,7 +9,7 @@ const NONE_PENDING = -1
 
 interface QueryState {
   literal : string
-  choices : Choice[]
+  guesses : lang.Guess[]
   showing : boolean
   pending : number
 }
@@ -26,7 +26,7 @@ export class Query extends React.Component<{}, QueryState> {
 
     this.state = {
       literal: '',
-      choices: engine.predict('').map(c => new Choice(c)),
+      guesses: engine.guess(''),
       showing: false,
       pending: NONE_PENDING,
     }
@@ -40,11 +40,9 @@ export class Query extends React.Component<{}, QueryState> {
   }
 
   handleChange (newValue: string) {
-    const structure = engine.predict(newValue)
-    const choices = structure.map(completion => new Choice(completion))
     this.setState({
       literal: newValue,
-      choices: choices,
+      guesses: engine.guess(newValue),
       pending: NONE_PENDING,
     })
   }
@@ -59,7 +57,7 @@ export class Query extends React.Component<{}, QueryState> {
 
   handleSpecialKey (key: 'enter' | 'esc' | 'up' | 'down') {
     const curr = this.state.pending
-    const total = this.state.choices.length
+    const total = this.state.guesses.length
 
     switch (key) {
       case 'enter':
@@ -95,7 +93,7 @@ export class Query extends React.Component<{}, QueryState> {
     })
   }
 
-  handleClick (choice: Choice, index: number) {
+  handleClick (guess: lang.Guess, index: number) {
     // ...
   }
 
@@ -109,18 +107,18 @@ export class Query extends React.Component<{}, QueryState> {
           onBlur={this.handleBlur}
           onSpecialKey={this.handleSpecialKey}
         />
-        <QueryChoices showing={this.state.showing}>
-          {this.state.choices.map((choice, i) =>
-            <QueryChoice
+        <Guesses showing={this.state.showing}>
+          {this.state.guesses.map((guess, i) =>
+            <Guess
               key={i}
-              choice={choice}
+              guess={guess}
               hovered={i === this.state.pending}
               onMouseEnter={() => this.handleMouseEnter(i)}
               onMouseLeave={this.handleMouseLeave}
-              onClick={(choice) => this.handleClick(choice, i)}
+              onClick={(guess) => this.handleClick(guess, i)}
             />
           )}
-        </QueryChoices>
+        </Guesses>
       </header>
     )
   }
@@ -175,40 +173,40 @@ class QueryInput extends React.PureComponent<QueryInputProps> {
   }
 }
 
-class QueryChoices extends React.PureComponent<{ showing: boolean }> {
+class Guesses extends React.PureComponent<{ showing: boolean }> {
   render () {
     return (
-      <ul id="query-choices" className={this.props.showing ? 'showing' : 'hidden'}>
+      <ul id="query-guesses" className={this.props.showing ? 'showing' : 'hidden'}>
         {this.props.children}
       </ul>
     )
   }
 }
 
-interface QueryChoiceProps {
-  choice       : Choice
+interface GuessProps {
+  guess       : lang.Guess
   hovered      : boolean
   onMouseEnter : () => void
   onMouseLeave : () => void
-  onClick      : (choice: Choice) => void
+  onClick      : (guess: lang.Guess) => void
 }
 
-class QueryChoice extends React.PureComponent<QueryChoiceProps> {
+class Guess extends React.PureComponent<GuessProps> {
   render () {
     return (
       <li
-        className={'query-choice' + (this.props.hovered ? ' hovered' : '')}
+        className={'query-guess' + (this.props.hovered ? ' hovered' : '')}
         onMouseEnter={this.props.onMouseEnter}
         onMouseLeave={this.props.onMouseLeave}
-        onClick={() => this.props.onClick(this.props.choice)}
+        onClick={() => this.props.onClick(this.props.guess)}
       >
-        <FilterSpan name={this.props.choice.name()} />
-        {(this.props.choice.operatorIsPlaceholder())
-            ? <OperatorSpan />
-            : <OperatorSpan symbol={this.props.choice.symbol()} />}
-        {(this.props.choice.argumentIsPlaceholder())
-            ? <ArgumentSpan type={this.props.choice.type()} />
-            : <ArgumentSpan type={this.props.choice.type()} example={this.props.choice.example()} />}
+        <FilterSpan name={this.props.guess.name()} />
+        {(this.props.guess.hasSymbol())
+            ? <OperatorSpan symbol={this.props.guess.symbol()} />
+            : <OperatorSpan />}
+        {(this.props.guess.hasExample())
+            ? <ArgumentSpan type={this.props.guess.type()} example={this.props.guess.example()} />
+            : <ArgumentSpan type={this.props.guess.type()} />}
         <DetailSpan detail="0 matches" />
       </li>
     )
@@ -244,37 +242,5 @@ class ArgumentSpan extends React.PureComponent<{ type: string, example?: string 
 class DetailSpan extends React.PureComponent<{ detail: string }> {
   render () {
     return <span className="detail">{this.props.detail}</span>
-  }
-}
-
-class Choice {
-  private completion : lang.Completion
-
-  constructor (completion: lang.Completion) {
-    this.completion = completion
-  }
-
-  name () {
-    return this.completion.filter.name
-  }
-
-  operatorIsPlaceholder () {
-    return (this.completion.argument instanceof lang.OperatorPlaceholder)
-  }
-
-  symbol () {
-    return (this.completion.operator as lang.OperatorCompletion).symbol
-  }
-
-  argumentIsPlaceholder () {
-    return (this.completion.argument instanceof lang.ArgumentPlaceholder)
-  }
-
-  type () {
-    return this.completion.argument.type
-  }
-
-  example () {
-    return (this.completion.argument as lang.ArgumentCompletion).example
   }
 }

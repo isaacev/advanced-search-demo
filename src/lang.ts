@@ -481,6 +481,82 @@ class Lexer {
   }
 }
 
+class FilterGuess {
+  public name : string
+
+  constructor (name: string) {
+    this.name = name
+  }
+}
+
+class OperatorGuess {
+  public isPlaceholder : boolean
+  public symbol?       : string
+
+  constructor (isPlaceholder: true)
+  constructor (isPlaceholder: false, symbol: string)
+  constructor (isPlaceholder: boolean, symbol?: string) {
+    this.isPlaceholder = isPlaceholder
+    this.symbol = symbol
+  }
+}
+
+class ArgumentGuess {
+  public isPlaceholder : boolean
+  public type          : string
+  public example?      : string
+
+  constructor (isPlaceholder: true, type: string)
+  constructor (isPlaceholder: false, type: string, example: string)
+  constructor (isPlaceholder: boolean, type: string, example?: string) {
+    this.isPlaceholder = isPlaceholder
+    this.type = type
+    this.example = example
+  }
+}
+
+export class Guess {
+  private filter   : FilterGuess
+  private operator : OperatorGuess
+  private argument : ArgumentGuess
+
+  constructor (filter: FilterGuess, operator: OperatorGuess, argument: ArgumentGuess) {
+    this.filter = filter
+    this.operator = operator
+    this.argument = argument
+  }
+
+  name () {
+    return this.filter.name
+  }
+
+  type () {
+    return this.argument.type
+  }
+
+  hasSymbol () {
+    return this.operator.isPlaceholder === false
+  }
+
+  symbol () {
+    if (this.operator.isPlaceholder) {
+      throw new Error('cannot get symbol')
+    }
+    return this.operator.symbol as string
+  }
+
+  hasExample () {
+    return this.argument.isPlaceholder === false
+  }
+
+  example () {
+    if (this.argument.isPlaceholder) {
+      throw new Error('cannot get example')
+    }
+    return this.argument.example as string
+  }
+}
+
 /**
  * The predictor takes the rules described by the Lexer and the Grammar to
  * convert a flat list of tokens into a structured and validated query. A major
@@ -521,84 +597,14 @@ class Lexer {
  * use, wait to expand both the operators and the arguments.
  */
 
-export interface Completion {
-  filter   : FilterCompletion
-  operator : OperatorPlaceholder | OperatorCompletion
-  argument : ArgumentPlaceholder | ArgumentCompletion
-}
-
-class FilterCompletion {
-  public name : string
-
-  constructor (name: string) {
-    this.name = name
-  }
-}
-
-export class OperatorPlaceholder {
-  toJSON () {
-    return {
-      placeholder: true,
-    }
-  }
-}
-
-export class OperatorCompletion {
-  public symbol : string
-
-  constructor (symbol: string) {
-     this.symbol = symbol
-  }
-
-  toJSON () {
-    return {
-      placeholder: false,
-      symbol: this.symbol,
-    }
-  }
-}
-
-export class ArgumentPlaceholder {
-  public type : string
-
-  constructor (type: string) {
-    this.type = type
-  }
-
-  toJSON () {
-    return {
-      placeholder: true,
-      type: this.type,
-    }
-  }
-}
-
-export class ArgumentCompletion {
-  public type    : string
-  public example : string
-
-  constructor (type: string, example: string) {
-    this.type = type
-    this.example = example
-  }
-
-  toJSON () {
-    return {
-      placeholder: false,
-      type: this.type,
-      example: this.example,
-    }
-  }
-}
-
-class Predict {
-  static query (lexer: Lexer, grammar: Grammar): Completion[] {
-    return Predict.filter(lexer, grammar)
+class Oracle {
+  static query (lexer: Lexer, grammar: Grammar): Guess[] {
+    return Oracle.filter(lexer, grammar)
   }
 
   // TODO: good grief this function needs to be broken down.
-  static filter (lexer: Lexer, grammar: Grammar): Completion[] {
-    const advice = [] as Completion[]
+  static filter (lexer: Lexer, grammar: Grammar): Guess[] {
+    const advice = [] as Guess[]
     if (lexer.peek() === null) {
       /**
        * The language expected the start of a filter but instead found the end
@@ -606,31 +612,23 @@ class Predict {
        * filters.
        */
       grammar.filters.forEach(f => {
-        const filter = new FilterCompletion(f.name)
-        const operator = new OperatorPlaceholder()
-        const argument = new ArgumentPlaceholder(f.type)
-        advice.push({
-          filter,
-          operator,
-          argument,
-        })
+        const filter = new FilterGuess(f.name)
+        const operator = new OperatorGuess(true)
+        const argument = new ArgumentGuess(true, f.type)
+        advice.push(new Guess(filter, operator, argument))
       })
     } else {
       const next = lexer.next() as RichToken
       grammar.filters
         .filter(f => f.prefixedBy(next.lexeme))
         .forEach((f, _, all) => {
-          const filter = new FilterCompletion(f.name)
+          const filter = new FilterGuess(f.name)
 
           if (all.length > 1) {
             // Since the filter is still ambiguous, do not expand the operators.
-            const operator = new OperatorPlaceholder()
-            const argument = new ArgumentPlaceholder(f.type)
-            advice.push({
-              filter,
-              operator,
-              argument,
-            })
+            const operator = new OperatorGuess(true)
+            const argument = new ArgumentGuess(true, f.type)
+            advice.push(new Guess(filter, operator, argument))
             return
           }
 
@@ -639,13 +637,9 @@ class Predict {
             grammar.operators
               .filter(op => op.types.indexOf(f.type) > -1)
               .forEach(op => {
-                const operator = new OperatorCompletion(op.symbol)
-                const argument = new ArgumentPlaceholder(f.type)
-                advice.push({
-                  filter,
-                  operator,
-                  argument,
-                })
+                const operator = new OperatorGuess(false, op.symbol)
+                const argument = new ArgumentGuess(true, f.type)
+                advice.push(new Guess(filter, operator, argument))
               })
           } else {
             // Parse the operator and then parse the argument.
@@ -654,7 +648,7 @@ class Predict {
               .filter(op => op.types.indexOf(f.type) > -1)
               .filter(op => op.prefixedBy(next.lexeme))
               .forEach(op => {
-                const operator = new OperatorCompletion(op.symbol)
+                const operator = new OperatorGuess(false, op.symbol)
 
                 // Macros that return the same type as the filter.
                 const worthyMacros = grammar.macros
@@ -664,12 +658,8 @@ class Predict {
                   // If there are not more tokens, suggest all possible macros.
                   worthyMacros
                     .forEach(macro => {
-                      const argument = new ArgumentCompletion(f.type, macro.example([]))
-                      advice.push({
-                        filter,
-                        operator,
-                        argument,
-                      })
+                      const argument = new ArgumentGuess(false, f.type, macro.example([]))
+                      advice.push(new Guess(filter, operator, argument))
                     })
                 } else {
                   // If there are more tokens, attempt each macro then generate
@@ -683,12 +673,9 @@ class Predict {
                     })
                     .forEach(pair => {
                       const { attempt, macro } = pair
-                      const argument = new ArgumentCompletion(f.type, macro.example(attempt.tokens.map(t => t.lexeme)))
-                      advice.push({
-                        filter,
-                        operator,
-                        argument,
-                      })
+                      const example = macro.example(attempt.tokens.map(t => t.lexeme))
+                      const argument = new ArgumentGuess(false, f.type, example)
+                      advice.push(new Guess(filter, operator, argument))
                     })
                 }
               })
@@ -707,9 +694,9 @@ export class QueryEngine {
     this.grammar = grammar
   }
 
-  public predict (partial: string): Completion[] {
+  public guess (partial: string): Guess[] {
     const lexer = new Lexer(partial, this.grammar)
-    return Predict.filter(lexer, this.grammar)
+    return Oracle.filter(lexer, this.grammar)
   }
 
   public validate (partial: string): boolean {

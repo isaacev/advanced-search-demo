@@ -21,21 +21,21 @@
   outline: none;
 }
 
-#query-choices {
+#query-guesses {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-#query-choices.showing {
+#query-guesses.showing {
   display: block;
 }
 
-#query-choices.hidden {
+#query-guesses.hidden {
   display: none;
 }
 
-.query-choice {
+.query-guess {
   margin: 0;
   padding: 4px 16px 4px 10px;
   border-top: 1px solid #eee;
@@ -45,30 +45,30 @@
   cursor: pointer;
 }
 
-.query-choice.hovered {
+.query-guess.hovered {
   background-color: #f5f5f5;
 }
 
-.query-choice span {
+.query-guess span {
   height: 22px;
   margin-right: 4px;
   padding: 2px 5px;
   border-radius: 2px;
 }
 
-.query-choice span.filter {
+.query-guess span.filter {
   background: rgba(46, 204, 113, 0.3);
 }
 
-.query-choice span.operator {
+.query-guess span.operator {
   background: rgba(231, 76, 60, 0.3);
 }
 
-.query-choice span.argument {
+.query-guess span.argument {
   background: rgba(52, 152, 219, 0.3);
 }
 
-.query-choice span.detail {
+.query-guess span.detail {
   margin: 3px 0;
   float: right;
   font-style: italic;
