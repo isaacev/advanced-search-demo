@@ -1,0 +1,40 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  color: #444;
+  background: #f1f1f1;
+  font-family: -apple-system,
+               "BlinkMacSystemFont",
+               "Segoe UI",
+               "Roboto",
+               "Oxygen-Sans",
+               "Ubuntu",
+               "Cantarell",
+               "Helvetica Neue",
+               sans-serif;
+}
+
+main {
+  width: 800px;
+  margin: 64px auto;
+}
+
+pre.json-blob {
+  width: 768px;
+  margin: 24px auto;
+  padding: 16px;
+  background: #e0e0e0;
+  font: 12px "Roboto Mono", sans-serif;
+  color: #34495e;
+}
+
+pre.json-blob h2 {
+  margin: 0 0 8px;
+  padding: 0 0 8px;
+  border-bottom: 2px solid #bdc3c7;
+}
+
+pre.json-blob code {
+  font-family: inherit;
+}

@@ -1,0 +1,78 @@
+#query {
+  background: white;
+  box-shadow: 0 2px 3px 0 hsla(0, 0%, 0%, 0.2);
+  border-radius: 2px;
+  font: 16px "Roboto Mono", monospace;
+}
+
+#query > input {
+  width: 100%;
+  height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  display: block;
+  border-style: none;
+  background: none;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+#query > input:focus {
+  outline: none;
+}
+
+#query-choices {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#query-choices.showing {
+  display: block;
+}
+
+#query-choices.hidden {
+  display: none;
+}
+
+.query-choice {
+  margin: 0;
+  padding: 4px 16px 4px 10px;
+  border-top: 1px solid #eee;
+  line-height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.query-choice.hovered {
+  background-color: #f5f5f5;
+}
+
+.query-choice span {
+  height: 22px;
+  margin-right: 4px;
+  padding: 2px 5px;
+  border-radius: 2px;
+}
+
+.query-choice span.filter {
+  background: rgba(46, 204, 113, 0.3);
+}
+
+.query-choice span.operator {
+  background: rgba(231, 76, 60, 0.3);
+}
+
+.query-choice span.argument {
+  background: rgba(52, 152, 219, 0.3);
+}
+
+.query-choice span.detail {
+  margin: 3px 0;
+  float: right;
+  font-style: italic;
+  font-size: 80%;
+  line-height: 22px;
+  color: gray;
+}
