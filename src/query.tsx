@@ -25,8 +25,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.handleChange = this.handleChange.bind(this)
     this.handleBlur = this.handleBlur.bind(this)
     this.handleSpecialKey = this.handleSpecialKey.bind(this)
-    this.handleMouseEnter = this.handleMouseEnter.bind(this)
-    this.handleMouseLeave = this.handleMouseLeave.bind(this)
+    this.handleMouseMove = this.handleMouseMove.bind(this)
 
     this.state = {
       literal: '',
@@ -95,15 +94,9 @@ export class Query extends React.Component<QueryProps, QueryState> {
     }
   }
 
-  handleMouseEnter (index: number) {
+  handleMouseMove (index: number) {
     this.setState({
       pending: index,
-    })
-  }
-
-  handleMouseLeave () {
-    this.setState({
-      pending: NONE_PENDING,
     })
   }
 
@@ -132,8 +125,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
               key={i}
               guess={guess}
               hovered={i === this.state.pending}
-              onMouseEnter={() => this.handleMouseEnter(i)}
-              onMouseLeave={this.handleMouseLeave}
+              onMouseMove={() => this.handleMouseMove(i)}
               onClick={(guess) => this.handleClick(guess)}
             />
           )}
@@ -204,10 +196,9 @@ class Guesses extends React.PureComponent<{ showing: boolean }> {
 
 interface GuessProps {
   guess       : lang.Guess
-  hovered      : boolean
-  onMouseEnter : () => void
-  onMouseLeave : () => void
-  onClick      : (guess: lang.Guess) => void
+  hovered     : boolean
+  onMouseMove : () => void
+  onClick     : (guess: lang.Guess) => void
 }
 
 class Guess extends React.PureComponent<GuessProps> {
@@ -215,8 +206,7 @@ class Guess extends React.PureComponent<GuessProps> {
     return (
       <li
         className={'query-guess' + (this.props.hovered ? ' hovered' : '')}
-        onMouseEnter={this.props.onMouseEnter}
-        onMouseLeave={this.props.onMouseLeave}
+        onMouseMove={this.props.onMouseMove}
         onClick={() => this.props.onClick(this.props.guess)}
       >
         <FilterSpan name={this.props.guess.name()} />
