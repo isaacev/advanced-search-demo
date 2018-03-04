@@ -39,17 +39,20 @@ export class Query extends React.Component<QueryProps, QueryState> {
     }
   }
 
-  handleChange (newValue: string) {
+  public setQuery (newValue: string) {
     const guesses = engine.guess(newValue)
     this.setState({
       literal: newValue,
-      guesses: guesses,
+      guesses,
       pending: NONE_PENDING,
     })
-
     if (this.props.onDebugGuess) {
       this.props.onDebugGuess(guesses)
     }
+  }
+
+  handleChange (newValue: string) {
+    this.setQuery(newValue)
   }
 
   handleSpecialKey (key: 'enter' | 'esc' | 'up' | 'down') {
@@ -58,7 +61,8 @@ export class Query extends React.Component<QueryProps, QueryState> {
 
     switch (key) {
       case 'enter':
-        this.handleClick(this.state.guesses[this.state.pending])
+        const guess = this.state.guesses[curr]
+        this.setQuery(guess.toString(false))
         this.setState({ pending: NONE_PENDING })
         break
       case 'esc':
@@ -86,12 +90,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
   }
 
   handleClick (guess: lang.Guess) {
-    const literal = guess.toString(false)
-    const guesses = engine.guess(literal)
-    this.setState({
-      literal,
-      guesses,
-    })
+    this.setQuery(guess.toString(false))
     if (this.inputComponentRef) {
       this.inputComponentRef.focus()
     }
