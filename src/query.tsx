@@ -30,7 +30,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.state = {
       literal: '',
       guesses: engine.guess(''),
-      showing: false,
+      showing: true,
       pending: NONE_PENDING,
     }
 
@@ -62,7 +62,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
         this.setState({ pending: NONE_PENDING })
         break
       case 'esc':
-        this.setState({ pending: NONE_PENDING })
+        // TODO
         break
       case 'up':
         if (curr - 1 >= 0) {
