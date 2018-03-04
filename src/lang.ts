@@ -505,13 +505,15 @@ class ArgumentGuess {
   public isPlaceholder : boolean
   public type          : string
   public example?      : string
+  public weight?       : number
 
   constructor (isPlaceholder: true, type: string)
-  constructor (isPlaceholder: false, type: string, example: string)
-  constructor (isPlaceholder: boolean, type: string, example?: string) {
+  constructor (isPlaceholder: false, type: string, example: string, weight: number)
+  constructor (isPlaceholder: boolean, type: string, example?: string, weight?: number) {
     this.isPlaceholder = isPlaceholder
     this.type = type
     this.example = example
+    this.weight = weight
   }
 }
 
@@ -554,6 +556,29 @@ export class Guess {
       throw new Error('cannot get example')
     }
     return this.argument.example as string
+  }
+
+  weight () {
+    if (this.hasExample()) {
+      return this.argument.weight as number
+    } else {
+      return 0
+    }
+  }
+
+  toString () {
+    let guess = this.name()
+    if (this.hasSymbol()) {
+      guess += ' ' + this.symbol()
+      if (this.hasExample()) {
+        guess += ' ' + this.example()
+      } else {
+        guess += ` <${this.type()}>`
+      }
+    } else {
+      guess += ` <operator> <${this.type()}>`
+    }
+    return guess
   }
 }
 
@@ -658,7 +683,7 @@ class Oracle {
                   // If there are not more tokens, suggest all possible macros.
                   worthyMacros
                     .forEach(macro => {
-                      const argument = new ArgumentGuess(false, f.type, macro.example([]))
+                      const argument = new ArgumentGuess(false, f.type, macro.example([]), 0)
                       advice.push(new Guess(filter, operator, argument))
                     })
                 } else {
@@ -674,7 +699,10 @@ class Oracle {
                     .forEach(pair => {
                       const { attempt, macro } = pair
                       const example = macro.example(attempt.tokens.map(t => t.lexeme))
-                      const argument = new ArgumentGuess(false, f.type, example)
+                      const weight = attempt.tokens.reduce((weight, tok) => {
+                        return weight + tok.lexeme.length
+                      }, 0)
+                      const argument = new ArgumentGuess(false, f.type, example, weight)
                       advice.push(new Guess(filter, operator, argument))
                     })
                 }
@@ -696,7 +724,12 @@ export class QueryEngine {
 
   public guess (partial: string): Guess[] {
     const lexer = new Lexer(partial, this.grammar)
-    return Oracle.filter(lexer, this.grammar)
+    const guesses = Oracle.filter(lexer, this.grammar)
+
+    // Weight guesses according to their respective weights. (Highest first)
+    guesses.sort((a, b) => b.weight() - a.weight())
+
+    return guesses
   }
 
   public validate (partial: string): boolean {
