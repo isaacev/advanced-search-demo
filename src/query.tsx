@@ -100,7 +100,7 @@ export class Query extends React.Component<{}, QueryState> {
   render () {
     return (
       <header id="query">
-        <QueryInput
+        <Input
           value={this.state.literal}
           onFocus={this.handleFocus}
           onChange={this.handleChange}
@@ -124,7 +124,7 @@ export class Query extends React.Component<{}, QueryState> {
   }
 }
 
-interface QueryInputProps {
+interface InputProps {
   value        : string
   onFocus      : () => void
   onChange     : (newValue: string) => void
@@ -132,8 +132,8 @@ interface QueryInputProps {
   onSpecialKey : (key: 'up' | 'down' | 'enter' | 'esc') => void
 }
 
-class QueryInput extends React.PureComponent<QueryInputProps> {
-  constructor (props: QueryInputProps) {
+class Input extends React.PureComponent<InputProps> {
+  constructor (props: InputProps) {
     super(props)
     this.handleChange = this.handleChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
