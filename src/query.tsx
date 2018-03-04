@@ -1,19 +1,17 @@
 import * as React from 'react'
 import './query.css'
-import * as lang from './lang'
+import Oracle, * as oracle from './lang/oracle'
 import Grammar from './grammar'
-
-const engine = new lang.QueryEngine(Grammar)
 
 const NONE_PENDING = -1
 
 interface QueryProps {
-  onNewGuesses? : (guesses: lang.Guess[]) => void
+  onNewGuesses? : (guesses: oracle.Guess[]) => void
 }
 
 interface QueryState {
   literal : string
-  guesses : lang.Guess[]
+  guesses : oracle.Guess[]
   showing : boolean
   pending : number
 }
@@ -29,7 +27,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
 
     this.state = {
       literal: '',
-      guesses: engine.guess(''),
+      guesses: Oracle.guess('', Grammar),
       showing: true,
       pending: NONE_PENDING,
     }
@@ -40,7 +38,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
   }
 
   public setQuery (newValue: string) {
-    const guesses = engine.guess(newValue)
+    const guesses = Oracle.guess(newValue, Grammar)
     this.setState({
       literal: newValue,
       guesses,
@@ -89,7 +87,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     })
   }
 
-  handleClick (guess: lang.Guess) {
+  handleClick (guess: oracle.Guess) {
     this.setQuery(guess.toString(false))
     if (this.inputComponentRef) {
       this.inputComponentRef.focus()
@@ -187,11 +185,11 @@ class Guesses extends React.PureComponent<{ showing: boolean }> {
 }
 
 interface GuessProps {
-  guess        : lang.Guess
+  guess        : oracle.Guess
   hovered      : boolean
   onMouseMove  : () => void
   onMouseLeave : () => void
-  onClick      : (guess: lang.Guess) => void
+  onClick      : (guess: oracle.Guess) => void
 }
 
 class Guess extends React.PureComponent<GuessProps> {
@@ -208,8 +206,8 @@ class Guess extends React.PureComponent<GuessProps> {
             ? <OperatorSpan symbol={this.props.guess.symbol()} />
             : <OperatorSpan />}
         {(this.props.guess.hasExample())
-            ? <ArgumentSpan type={this.props.guess.type()} example={this.props.guess.example()} />
-            : <ArgumentSpan type={this.props.guess.type()} />}
+            ? <ArgumentSpan type={this.props.guess.type().name} example={this.props.guess.example()} />
+            : <ArgumentSpan type={this.props.guess.type().name} />}
         <DetailSpan detail="0 matches" />
       </li>
     )

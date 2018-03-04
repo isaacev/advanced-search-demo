@@ -1,4 +1,4 @@
-import { Grammar } from './lang'
+import Grammar from './lang/grammar'
 
 function wordToMilliseconds (word: string) {
   const MS_SEC  = 1  * 1000
@@ -38,20 +38,28 @@ function wordToMilliseconds (word: string) {
 
 export default new Grammar({
   types: [{
-    name     : 'number',
-    priority : 0,
-    validate : (n) => /^\d+$/.test(n),
-    evaluate : (n) => parseInt(n, 10),
+    name       : 'any',
+    precedence : 0,
+    validate   : (a) => /^.+$/.test(a),
+    evaluate   : (a) => a.toString(),
   }, {
-    name     : 'user',
-    priority : 2,
-    validate : (u) => /^(user1|user2)$/i.test(u),
-    evaluate : (u) => u,
+    name       : 'number',
+    precedence : 1,
+    supertype  : 'any',
+    validate   : (n) => /^\d+$/.test(n),
+    evaluate   : (n) => parseInt(n, 10),
   }, {
-    name     : 'timestamp',
-    priority : 1,
-    validate : (n) => /^\d+$/.test(n),
-    evaluate : (n) => parseInt(n, 10),
+    name       : 'user',
+    precedence : 2,
+    supertype  : 'any',
+    validate   : (u) => /^(user1|user2)$/i.test(u),
+    evaluate   : (u) => u.toString(),
+  }, {
+    name       : 'timestamp',
+    precedence : 2,
+    supertype  : 'number',
+    validate   : (n) => /^\d+$/.test(n),
+    evaluate   : (n) => parseInt(n, 10),
   }],
 
   filters: [{
@@ -63,23 +71,23 @@ export default new Grammar({
   }, {
     name : 'author',
     type : 'user',
-  }, {
-    name : 'contains',
-    type : 'timestamp',
   }],
 
   operators: [{
-    symbol  : '=',
-    types   : [ 'user', 'timestamp' ],
+    symbol : '=',
+    type   : 'any',
   }, {
-    symbol  : 'before',
-    types   : [ 'timestamp' ],
+    symbol : '!=',
+    type   : 'any',
   }, {
-    symbol  : 'after',
-    types   : [ 'timestamp' ],
+    symbol : 'before',
+    type   : 'timestamp',
   }, {
-    symbol  : 'around',
-    types   : [ 'timestamp' ],
+    symbol : 'after',
+    type   : 'timestamp',
+  }, {
+    symbol : 'around',
+    type   : 'timestamp',
   }],
 
   macros: [{
