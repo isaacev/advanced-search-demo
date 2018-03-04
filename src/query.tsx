@@ -8,7 +8,7 @@ const engine = new lang.QueryEngine(Grammar)
 const NONE_PENDING = -1
 
 interface QueryProps {
-  onDebugGuess? : (guesses: lang.Guess[]) => void
+  onNewGuesses? : (guesses: lang.Guess[]) => void
 }
 
 interface QueryState {
@@ -34,8 +34,8 @@ export class Query extends React.Component<QueryProps, QueryState> {
       pending: NONE_PENDING,
     }
 
-    if (this.props.onDebugGuess) {
-      this.props.onDebugGuess(this.state.guesses)
+    if (this.props.onNewGuesses) {
+      this.props.onNewGuesses(this.state.guesses)
     }
   }
 
@@ -46,8 +46,8 @@ export class Query extends React.Component<QueryProps, QueryState> {
       guesses,
       pending: NONE_PENDING,
     })
-    if (this.props.onDebugGuess) {
-      this.props.onDebugGuess(guesses)
+    if (this.props.onNewGuesses) {
+      this.props.onNewGuesses(guesses)
     }
   }
 

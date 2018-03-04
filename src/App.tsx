@@ -23,7 +23,7 @@ class App extends React.Component<{}, { guesses: Object }> {
   render() {
     return (
       <main>
-        <Query onDebugGuess={(guesses) => this.setState({ guesses })} />
+        <Query onNewGuesses={(guesses) => this.setState({ guesses })} />
         <JsonBlob title="Guesses" data={this.state.guesses} />
       </main>
     )
