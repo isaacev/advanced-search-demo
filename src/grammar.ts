@@ -120,13 +120,22 @@ export default new Grammar({
     },
     example  : (tokens) => {
       if (tokens.length === 0) {
-        return `3 days ago`
+        return [
+          `5 days ago`,
+          `1 week ago`,
+        ]
       } else if (tokens.length === 1) {
         const scalarVal = parseInt(tokens[0], 10)
         if (scalarVal > 1) {
-          return `${scalarVal} days ago`
+          return [
+            `${scalarVal} days ago`,
+            `${scalarVal} weeks ago`,
+          ]
         } else {
-          return `${scalarVal} day ago`
+          return [
+            `${scalarVal} day ago`,
+            `${scalarVal} week ago`,
+          ]
         }
       } else if (tokens.length === 2) {
         const scalar = parseInt(tokens[0], 10)
@@ -139,30 +148,30 @@ export default new Grammar({
           unit = (scalar > 1) ? 'weeks' : 'week'
         }
 
-        return `${scalar} ${unit} ago`
+        return [`${scalar} ${unit} ago`]
       } else {
-        return `${tokens[0]} ${tokens[1]} ago`
+        return [`${tokens[0]} ${tokens[1]} ago`]
       }
     },
   }, {
     template : '[now]',
     type     : 'timestamp',
     resolve  : () => Date.now(),
-    example  : () => 'now',
+    example  : () => ['now'],
   }, {
     template : '[today]',
     type     : 'timestamp',
     resolve  : () => Date.now(),
-    example  : () => 'today',
+    example  : () => ['today'],
   }, {
     template : '[yesterday]',
     type     : 'timestamp',
     resolve  : () => Date.now() - wordToMilliseconds('day'),
-    example  : () => 'yesterday',
+    example  : () => ['yesterday'],
   }, {
     template : '[me]',
     type     : 'user',
     resolve  : () => 'user1',
-    example  : () => 'me',
+    example  : () => ['me'],
   }]
 })

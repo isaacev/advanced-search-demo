@@ -286,14 +286,16 @@ export default class Oracle {
   }
 
   private static argument (type: Type, lexer: Lexer, grammar: Grammar): ArgumentGuess[] {
-    return grammar.compatibleMacros(type).map(m => {
+    return grammar.compatibleMacros(type).reduce((guesses, m) => {
       /**
        * If there are no upcoming tokens, every compatible macro should return
        * an example.
        */
       if (lexer.peek() === null) {
-        const example = m.example([])
-        return new ArgumentGuess(false, type, example, 0)
+        const examples = m.example([])
+        return guesses.concat(examples.map(example => {
+          return new ArgumentGuess(false, type, example, 0)
+        }))
       }
 
       /**
@@ -306,18 +308,14 @@ export default class Oracle {
 
       // Macro matched nothing so reject it as a possibility.
       if (attempt.success === false && attempt.partial === false) {
-        return null
+        return guesses
       }
 
-      const example = m.example(attempt.tokens.map(t => t.lexeme))
+      const examples = m.example(attempt.tokens.map(t => t.lexeme))
       const weight = attempt.tokens.reduce((w, t) => w + t.lexeme.length, 0)
-      return new ArgumentGuess(false, type, example, weight)
-    }).filter(argument => {
-      if (argument === null) {
-        return false
-      } else {
-        return true
-      }
-    }) as ArgumentGuess[]
+      return guesses.concat(examples.map(example => {
+        return new ArgumentGuess(false, type, example, weight)
+      }))
+    }, [] as ArgumentGuess[])
   }
 }

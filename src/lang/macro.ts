@@ -8,7 +8,7 @@ export interface MacroOptions {
   template    : string
   type        : string
   resolve     : (...argv: string[]) => string | number
-  example     : (tokens: string[]) => string
+  example     : (tokens: string[]) => string[]
   precedence? : number
 }
 
@@ -40,7 +40,7 @@ export class Macro {
   public template   : string
   public syntax     : (MacroParameter | MacroKeyword)[]
   public resolve    : (...argv: string[]) => string | number
-  public example    : (tokens: string[]) => string
+  public example    : (tokens: string[]) => string[]
   public precedence : number = 0
 
   static process (template: string) {
