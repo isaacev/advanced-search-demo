@@ -80,20 +80,26 @@ export default new Grammar({
    * determine which operators and arguments are compatible with the filter.
    */
   filters: [{
+    name : 'published',
+    type : 'timestamp',
+  }, {
     name : 'created',
     type : 'timestamp',
   }, {
-    name : 'last-updated',
+    name : 'modified',
     type : 'timestamp',
   }, {
-    name : 'updated-since',
-    type : 'timestamp',
-  }, {
-    name : 'author',
+    name : 'group',
     type : 'user',
   }, {
     name : 'status',
     type : 'status',
+  }, {
+    name : 'created-by',
+    type : 'user',
+  }, {
+    name : 'publisher',
+    type : 'user',
   }],
 
   /**
