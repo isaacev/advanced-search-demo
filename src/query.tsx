@@ -312,27 +312,61 @@ class Guesses extends React.PureComponent {
 }
 
 interface GuessProps {
-  guess        : oracle.Guess
-  pending      : boolean
-  onClick      : (guess: oracle.Guess) => void
+  guess   : oracle.Guess
+  pending : boolean
+  onClick : (guess: oracle.Guess) => void
 }
 
 class Guess extends React.PureComponent<GuessProps> {
+  handleClick (event: React.MouseEvent<HTMLLIElement>) {
+    this.props.onClick(this.props.guess)
+  }
+
+  getFilterSpan () {
+    return <FilterSpan name={this.props.guess.name()} />
+  }
+
+  getOperatorSpan () {
+    if (this.props.guess.hasSymbol()) {
+      return <OperatorSpan symbol={this.props.guess.symbol()} />
+    } else {
+      return <OperatorSpan />
+    }
+  }
+
+  getArgumentSpan () {
+    if (this.props.guess.hasExample()) {
+      return (
+        <ArgumentSpan
+          type={this.props.guess.type().name}
+          example={this.props.guess.example().toString()}
+        />
+      )
+    } else {
+      return (
+        <ArgumentSpan type={this.props.guess.type().name} />
+      )
+    }
+  }
+
+  getDetailSpan () {
+    if (this.props.guess.hasExample()) {
+      if (this.props.guess.example().hasDetails()) {
+        return <DetailSpan detail={this.props.guess.example().details()} />
+      }
+    }
+
+    return null
+  }
+
   render () {
+    const classes = 'query-guess' + (this.props.pending ? ' pending' : '')
     return (
-      <li
-        className={'query-guess' + (this.props.pending ? ' pending' : '')}
-        onClick={() => this.props.onClick(this.props.guess)}
-      >
-        <FilterSpan name={this.props.guess.name()} />
-        {(this.props.guess.hasSymbol())
-          ? <OperatorSpan symbol={this.props.guess.symbol()} />
-          : <OperatorSpan />}
-        {(this.props.guess.hasExample())
-          ? <ArgumentSpan type={this.props.guess.type().name} example={this.props.guess.example().toString()} />
-          : <ArgumentSpan type={this.props.guess.type().name} />}
-        {(this.props.guess.hasExample() && this.props.guess.example().hasDetails()) &&
-            <DetailSpan detail={this.props.guess.example().details()} />}
+      <li className={classes} onClick={e => this.handleClick(e)}>
+        {this.getFilterSpan()}
+        {this.getOperatorSpan()}
+        {this.getArgumentSpan()}
+        {this.getDetailSpan()}
       </li>
     )
   }
