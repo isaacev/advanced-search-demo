@@ -13,7 +13,6 @@ interface QueryProps {
 interface QueryState {
   literal : string
   guesses : oracle.Guess[]
-  showing : boolean
   pending : number
 }
 
@@ -24,13 +23,10 @@ export class Query extends React.Component<QueryProps, QueryState> {
     super(props)
     this.handleChange = this.handleChange.bind(this)
     this.handleSpecialKey = this.handleSpecialKey.bind(this)
-    this.handleMouseMove = this.handleMouseMove.bind(this)
-    this.handleMouseLeave = this.handleMouseLeave.bind(this)
 
     this.state = {
       literal: '',
       guesses: Oracle.guess('', Grammar),
-      showing: true,
       pending: NONE_PENDING,
     }
 
@@ -75,7 +71,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.setQuery(newValue)
   }
 
-  handleSpecialKey (key: 'tab' | 'enter' | 'esc' | 'up' | 'down') {
+  handleSpecialKey (key: 'tab' | 'esc' | 'up' | 'down') {
     const curr = this.state.pending
     const total = this.state.guesses.length
 
@@ -86,12 +82,6 @@ export class Query extends React.Component<QueryProps, QueryState> {
           const guess = this.state.guesses[curr]
           const ghost = Ghost.getGhost(literal, guess)
           this.setQuery(literal + ghost)
-        }
-        break
-      case 'enter':
-        if (curr > NONE_PENDING) {
-          const guess = this.state.guesses[curr]
-          this.setQuery(guess.toString(false))
         }
         break
       case 'esc':
@@ -110,18 +100,6 @@ export class Query extends React.Component<QueryProps, QueryState> {
         }
         break
     }
-  }
-
-  handleMouseMove (index: number) {
-    this.setState({
-      pending: index,
-    })
-  }
-
-  handleMouseLeave () {
-    this.setState({
-      pending: this.pendingGuessIndexAtRest(),
-    })
   }
 
   handleClick (guess: oracle.Guess) {
@@ -146,14 +124,12 @@ export class Query extends React.Component<QueryProps, QueryState> {
             guess={this.state.guesses[this.state.pending]}
           />
         )}
-        <Guesses showing={this.state.showing}>
+        <Guesses>
           {this.state.guesses.map((guess, i) =>
             <Guess
               key={i}
               guess={guess}
               pending={i === this.state.pending}
-              onMouseMove={() => this.handleMouseMove(i)}
-              onMouseLeave={this.handleMouseLeave}
               onClick={(guess) => this.handleClick(guess)}
             />
           )}
@@ -166,7 +142,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
 interface InputProps {
   value        : string
   onChange     : (newValue: string) => void
-  onSpecialKey : (key: 'tab' | 'up' | 'down' | 'enter' | 'esc') => void
+  onSpecialKey : (key: 'tab' | 'up' | 'down' | 'esc') => void
 }
 
 class Input extends React.PureComponent<InputProps> {
@@ -191,7 +167,6 @@ class Input extends React.PureComponent<InputProps> {
   handleKeyDown (event: React.KeyboardEvent<HTMLInputElement>) {
     const keys = {
       9: 'tab',
-      13: 'enter',
       27: 'esc',
       38: 'up',
       40: 'down',
@@ -249,10 +224,10 @@ class Ghost extends React.PureComponent<{ literal: string, guess: oracle.Guess }
   }
 }
 
-class Guesses extends React.PureComponent<{ showing: boolean }> {
+class Guesses extends React.PureComponent {
   render () {
     return (
-      <ul id="query-guesses" className={this.props.showing ? 'showing' : 'hidden'}>
+      <ul id="query-guesses">
         {this.props.children}
       </ul>
     )
@@ -262,8 +237,6 @@ class Guesses extends React.PureComponent<{ showing: boolean }> {
 interface GuessProps {
   guess        : oracle.Guess
   pending      : boolean
-  onMouseMove  : () => void
-  onMouseLeave : () => void
   onClick      : (guess: oracle.Guess) => void
 }
 
@@ -272,8 +245,6 @@ class Guess extends React.PureComponent<GuessProps> {
     return (
       <li
         className={'query-guess' + (this.props.pending ? ' pending' : '')}
-        onMouseMove={this.props.onMouseMove}
-        onMouseLeave={this.props.onMouseLeave}
         onClick={() => this.props.onClick(this.props.guess)}
       >
         <FilterSpan name={this.props.guess.name()} />

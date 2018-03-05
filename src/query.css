@@ -68,6 +68,10 @@
   cursor: pointer;
 }
 
+.query-guess:hover {
+  background-color: #fafafa;
+}
+
 .query-guess.pending {
   background-color: #f5f5f5;
 }
