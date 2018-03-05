@@ -183,6 +183,15 @@ export default new Grammar({
    * argument.
    */
   macros: [{
+    template : 'last login',
+    type     : 'timestamp',
+    resolve  : () => {
+      return Date.now()
+    },
+    example : (tokens): Example => {
+      return new Example('last login', 'Mar. 2')
+    },
+  }, {
     template : '<number> [day|days|week|weeks] ago',
     type     : 'timestamp',
     resolve  : (scalar, units) => {
