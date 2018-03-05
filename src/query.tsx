@@ -71,12 +71,13 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.setQuery(newValue)
   }
 
-  handleSpecialKey (key: 'tab' | 'esc' | 'up' | 'down') {
+  handleSpecialKey (key: 'tab' | 'enter' | 'esc' | 'up' | 'down') {
     const curr = this.state.pending
     const total = this.state.guesses.length
 
     switch (key) {
       case 'tab':
+      case 'enter':
         if (curr > NONE_PENDING) {
           const literal = this.state.literal
           const guess = this.state.guesses[curr]
@@ -142,7 +143,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
 interface InputProps {
   value        : string
   onChange     : (newValue: string) => void
-  onSpecialKey : (key: 'tab' | 'up' | 'down' | 'esc') => void
+  onSpecialKey : (key: 'tab' | 'enter' | 'up' | 'down' | 'esc') => void
 }
 
 class Input extends React.PureComponent<InputProps> {
@@ -167,6 +168,7 @@ class Input extends React.PureComponent<InputProps> {
   handleKeyDown (event: React.KeyboardEvent<HTMLInputElement>) {
     const keys = {
       9: 'tab',
+      13: 'enter',
       27: 'esc',
       38: 'up',
       40: 'down',
