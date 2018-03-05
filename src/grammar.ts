@@ -1,12 +1,14 @@
 import Grammar from './lang/grammar'
 import * as strings from './lang/strings'
+import { Example } from './lang/macro'
 
 function wordToMilliseconds (word: string) {
-  const MS_SEC  = 1  * 1000
-  const MS_MIN  = 60 * MS_SEC
-  const MS_HOUR = 60 * MS_MIN
-  const MS_DAY  = 24 * MS_HOUR
-  const MS_WEEK =  7 * MS_DAY
+  const MS_SEC  =   1 * 1000
+  const MS_MIN  =  60 * MS_SEC
+  const MS_HOUR =  60 * MS_MIN
+  const MS_DAY  =  24 * MS_HOUR
+  const MS_WEEK =   7 * MS_DAY
+  const MS_YEAR = 365 * MS_DAY
 
   switch (word) {
     case 'sec':
@@ -32,8 +34,60 @@ function wordToMilliseconds (word: string) {
     case 'week':
     case 'weeks':
       return MS_WEEK
+    case 'yr':
+    case 'yrs':
+    case 'year':
+    case 'years':
+      return MS_YEAR
     default:
       throw new Error(`unknown word: "${word}"`)
+  }
+}
+
+function formatDate (timestamp: number) {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const date = new Date(timestamp)
+
+  if (timestamp < (Date.now() - 25 * wordToMilliseconds('week'))) {
+    return `${months[date.getMonth()]}. ${date.getDate()}, ${date.getFullYear()}`
+  } else {
+    return `${months[date.getMonth()]}. ${date.getDate()}`
+  }
+}
+
+function phraseToDate (phrase: string) {
+  if (phrase === 'now' || phrase === 'today') {
+    return formatDate(Date.now())
+  } else if (phrase === 'yesterday') {
+    return formatDate(Date.now() - wordToMilliseconds('day'))
+  }
+
+  const days = /(\d+)\s+(day|days)\s+ago/i
+  const weeks = /(\d+)\s+(week|weeks)\s+ago/i
+
+  const match = (days.test(phrase))
+    ? phrase.match(days)
+    : (weeks.test(phrase))
+      ? phrase.match(weeks)
+      : null
+
+  if (match === null) {
+    return undefined
+  }
+
+  const scalarRaw = match[1]
+  const unitsRaw = match[2]
+
+  const scalarVal = parseInt(scalarRaw, 10)
+  const unitsVal = wordToMilliseconds(unitsRaw)
+  const timestamp = Date.now() - (scalarVal * unitsVal)
+  return formatDate(timestamp)
+}
+
+class TimestampExample extends Example {
+  constructor (example: string) {
+    super(example, phraseToDate(example))
   }
 }
 
@@ -136,23 +190,23 @@ export default new Grammar({
       const unitsVal = wordToMilliseconds(units)
       return Date.now() - (scalarVal * unitsVal)
     },
-    example  : (tokens) => {
+    example  : (tokens): Example | Example[] => {
       if (tokens.length === 0) {
         return [
-          `5 days ago`,
-          `1 week ago`,
+          new TimestampExample(`5 days ago`),
+          new TimestampExample(`1 week ago`),
         ]
       } else if (tokens.length === 1) {
         const scalarVal = parseInt(tokens[0], 10)
         if (scalarVal > 1) {
           return [
-            `${scalarVal} days ago`,
-            `${scalarVal} weeks ago`,
+            new TimestampExample(`${scalarVal} days ago`),
+            new TimestampExample(`${scalarVal} weeks ago`),
           ]
         } else {
           return [
-            `${scalarVal} day ago`,
-            `${scalarVal} week ago`,
+            new TimestampExample(`${scalarVal} day ago`),
+            new TimestampExample(`${scalarVal} week ago`),
           ]
         }
       } else if (tokens.length === 2) {
@@ -166,31 +220,31 @@ export default new Grammar({
           unit = (scalar > 1) ? 'weeks' : 'week'
         }
 
-        return `${scalar} ${unit} ago`
+        return new TimestampExample(`${scalar} ${unit} ago`)
       } else {
-        return `${tokens[0]} ${tokens[1]} ago`
+        return new TimestampExample(`${tokens[0]} ${tokens[1]} ago`)
       }
     },
   }, {
     template : '[now]',
     type     : 'timestamp',
     resolve  : () => Date.now(),
-    example  : () => 'now',
+    example  : () => new TimestampExample('now'),
   }, {
     template : '[today]',
     type     : 'timestamp',
     resolve  : () => Date.now(),
-    example  : () => 'today',
+    example  : () => new TimestampExample('today'),
   }, {
     template : '[yesterday]',
     type     : 'timestamp',
     resolve  : () => Date.now() - wordToMilliseconds('day'),
-    example  : () => 'yesterday',
+    example  : () => new TimestampExample('yesterday'),
   }, {
     template : '[me]',
     type     : 'user',
     resolve  : () => 'user1',
-    example  : () => 'me',
+    example  : () => new Example('me', '@ievavold'),
   }, {
     template : '[hpotter|rweasley|hgranger]',
     type     : 'user',
