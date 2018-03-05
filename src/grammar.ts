@@ -51,20 +51,13 @@ export default new Grammar({
    * the token. If no legal down-cast is available then emit a syntax error.
    */
   types: [{
-    name       : 'any',
-    precedence : 0,
-    validate   : (a) => /^.+$/.test(a),
-    evaluate   : (a) => a.toString(),
-  }, {
     name       : 'number',
     precedence : 1,
-    supertype  : 'any',
     validate   : (n) => /^\d+$/.test(n),
     evaluate   : (n) => parseInt(n, 10),
   }, {
     name       : 'user',
     precedence : 2,
-    supertype  : 'any',
     validate   : (u) => /^(user1|user2)$/i.test(u),
     evaluate   : (u) => u.toString(),
   }, {
@@ -98,10 +91,10 @@ export default new Grammar({
    */
   operators: [{
     symbol : '=',
-    type   : 'any',
+    type   : '*',
   }, {
     symbol : '!=',
-    type   : 'any',
+    type   : '*',
   }, {
     symbol : 'before',
     type   : 'timestamp',

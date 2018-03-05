@@ -70,9 +70,12 @@ export default class Grammar {
     throw errors.fatal(`unknown type: "${name}"`)
   }
 
-  public canCastType(from: Type, to: Type): boolean {
-    // TODO
-    return false
+  public allSupertypes (type: Type): Type[] {
+    if (type.name === '*') {
+      return [type]
+    } else {
+      return [type].concat(this.allSupertypes(type.supertype))
+    }
   }
 
   public newOperator (opts: OperatorOptions) {
@@ -96,6 +99,13 @@ export default class Grammar {
       }
     }
     throw errors.fatal(`unknown operator: "${symbol}"`)
+  }
+
+  public compatibleOperators (type: Type): Operator[] {
+    const allSupertypes = this.allSupertypes(type)
+    return this.operators.filter(op => {
+      return allSupertypes.indexOf(op.type) > -1
+    })
   }
 
   public newFilter (opts: FilterOptions) {
@@ -125,6 +135,13 @@ export default class Grammar {
     const type = this.getType(opts.type)
     this.macros.push(new Macro(type, opts))
     this.macros.sort((a, b) => b.precedence - a.precedence)
+  }
+
+  public compatibleMacros (type: Type): Macro[] {
+    const allSupertypes = this.allSupertypes(type)
+    return this.macros.filter(op => {
+      return allSupertypes.indexOf(op.type) > -1
+    })
   }
 
   toJSON () {
