@@ -53,7 +53,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     if (this.props.onDebug) {
       this.props.onDebug([{
         title: 'Guesses',
-        data: this.state.guesses,
+        data: guesses,
       }, {
         title: 'Grammar',
         data: Grammar,
@@ -71,9 +71,11 @@ export class Query extends React.Component<QueryProps, QueryState> {
 
     switch (key) {
       case 'enter':
-        const guess = this.state.guesses[curr]
-        this.setQuery(guess.toString(false))
-        this.setState({ pending: NONE_PENDING })
+        if (curr > NONE_PENDING) {
+          const guess = this.state.guesses[curr]
+          this.setQuery(guess.toString(false))
+          this.setState({ pending: NONE_PENDING })
+        }
         break
       case 'esc':
         // TODO
