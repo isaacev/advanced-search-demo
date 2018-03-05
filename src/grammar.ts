@@ -183,6 +183,24 @@ export default new Grammar({
     resolve  : () => 'user1',
     example  : () => ['me'],
   }, {
+    template : '[hpotter|rweasley|hgranger]',
+    type     : 'user',
+    resolve  : (username) => username,
+    example  : (tokens) => {
+      const username = (tokens[0] || '').toLowerCase()
+      if (username === '') {
+        return [ 'hpotter', 'rweasley', 'hgranger' ]
+      } else if (strings.prefixedBy(status, 'hpotter')) {
+        return [ 'hpotter' ]
+      } else if (strings.prefixedBy(status, 'rweasley')) {
+        return [ 'rweasley' ]
+      } else if (strings.prefixedBy(status, 'hgranger')) {
+        return [ 'hgranger' ]
+      } else {
+        return [ 'hpotter', 'rweasley', 'hgranger' ]
+      }
+    }
+  }, {
     template : '[submitted|in-progress|archived]',
     type     : 'status',
     resolve  : (status) => status.toLowerCase(),
