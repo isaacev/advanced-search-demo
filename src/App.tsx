@@ -12,19 +12,21 @@ class JsonBlob extends React.PureComponent<{ title: string, data: Object }> {
   }
 }
 
-class App extends React.Component<{}, { guesses: Object }> {
+class App extends React.Component<{}, { debugging: { title: string, data: Object }[] }> {
   constructor (props: {}) {
     super(props)
     this.state = {
-      guesses: [],
+      debugging: [],
     }
   }
 
   render() {
     return (
       <main>
-        <Query onNewGuesses={(guesses) => this.setState({ guesses })} />
-        <JsonBlob title="Guesses" data={this.state.guesses} />
+        <Query onDebug={debugging => this.setState({ debugging })} />
+        {this.state.debugging.map((blob, i) => {
+          return <JsonBlob key={i} title={blob.title} data={blob.data} />
+        })}
       </main>
     )
   }

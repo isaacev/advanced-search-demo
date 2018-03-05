@@ -6,7 +6,7 @@ import Grammar from './grammar'
 const NONE_PENDING = -1
 
 interface QueryProps {
-  onNewGuesses? : (guesses: oracle.Guess[]) => void
+  onDebug : (debugging: { title: string, data: Object }[]) => void
 }
 
 interface QueryState {
@@ -32,8 +32,14 @@ export class Query extends React.Component<QueryProps, QueryState> {
       pending: NONE_PENDING,
     }
 
-    if (this.props.onNewGuesses) {
-      this.props.onNewGuesses(this.state.guesses)
+    if (this.props.onDebug) {
+      this.props.onDebug([{
+        title: 'Guesses',
+        data: this.state.guesses,
+      }, {
+        title: 'Grammar',
+        data: Grammar,
+      }])
     }
   }
 
@@ -44,8 +50,14 @@ export class Query extends React.Component<QueryProps, QueryState> {
       guesses,
       pending: NONE_PENDING,
     })
-    if (this.props.onNewGuesses) {
-      this.props.onNewGuesses(guesses)
+    if (this.props.onDebug) {
+      this.props.onDebug([{
+        title: 'Guesses',
+        data: this.state.guesses,
+      }, {
+        title: 'Grammar',
+        data: Grammar,
+      }])
     }
   }
 
