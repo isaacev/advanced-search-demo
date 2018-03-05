@@ -37,6 +37,19 @@ function wordToMilliseconds (word: string) {
 }
 
 export default new Grammar({
+  /**
+   * Types are a collection of regular expressions used to convert the raw
+   * tokens in a query into more complex forms of data. Since the same token
+   * can potentially be used as multiple types, each type is assigned a
+   * precedence which defines the order in which types are compared. Higher
+   * precedence types are compared first.
+   *
+   * If a token is tagged as a high precedence type and later that type is
+   * found to be incompatible with a filter, the language will check if the
+   * original type can be down-cast into a lower precedence type that *is*
+   * compatible with the filter. If there is a legal down-cast type, convert
+   * the token. If no legal down-cast is available then emit a syntax error.
+   */
   types: [{
     name       : 'any',
     precedence : 0,
@@ -62,6 +75,11 @@ export default new Grammar({
     evaluate   : (n) => parseInt(n, 10),
   }],
 
+  /**
+   * Filters extract some metadata field from the post object and compare that
+   * value to the filter's argument. Each filter has a type which is used to
+   * determine which operators and arguments are compatible with the filter.
+   */
   filters: [{
     name : 'created',
     type : 'timestamp',
@@ -73,6 +91,11 @@ export default new Grammar({
     type : 'user',
   }],
 
+  /**
+   * Operators are functions that compare the metadata extracted by a filter
+   * against an argument supplied by the query. Each operator has a type which
+   * describes the filters and arguments the operator is compatible with.
+   */
   operators: [{
     symbol : '=',
     type   : 'any',
@@ -90,6 +113,10 @@ export default new Grammar({
     type   : 'timestamp',
   }],
 
+  /**
+   * Macros describe a pattern that when matched, is converted into a filter
+   * argument.
+   */
   macros: [{
     template : '<number> [day|days|week|weeks] ago',
     type     : 'timestamp',
