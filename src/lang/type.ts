@@ -47,4 +47,8 @@ export class Type {
   toJSON () {
     return this.name
   }
+
+  toString () {
+    return this.name
+  }
 }
