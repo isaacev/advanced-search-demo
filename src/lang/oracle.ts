@@ -29,15 +29,13 @@ class ArgumentGuess {
   public isPlaceholder : boolean
   public type          : Type
   public example?      : Example
-  public weight?       : number
 
   constructor (isPlaceholder: true, type: Type)
-  constructor (isPlaceholder: false, type: Type, example: Example, weight: number)
-  constructor (isPlaceholder: boolean, type: Type, example?: Example, weight?: number) {
+  constructor (isPlaceholder: false, type: Type, example: Example)
+  constructor (isPlaceholder: boolean, type: Type, example?: Example) {
     this.isPlaceholder = isPlaceholder
     this.type = type
     this.example = example
-    this.weight = weight
   }
 }
 
@@ -80,14 +78,6 @@ export class Guess {
       throw new Error('cannot get example')
     }
     return this.argument.example as Example
-  }
-
-  weight () {
-    if (this.hasExample()) {
-      return this.argument.weight as number
-    } else {
-      return 0
-    }
   }
 
   toString (withPlaceholders: boolean = true) {
@@ -152,11 +142,7 @@ export class Guess {
 export default class Oracle {
   public static guess (partial: string, grammar: Grammar) {
     const lexer = new Lexer(partial, grammar)
-    const guesses = Oracle.filter(lexer, grammar)
-
-    // Sort guesses from highest weight -> lowest weight.
-    guesses.sort((a, b) => b.weight() - a.weight())
-    return guesses
+    return Oracle.filter(lexer, grammar)
   }
 
   private static filter (lexer: Lexer, grammar: Grammar): Guess[] {
@@ -295,7 +281,7 @@ export default class Oracle {
       if (lexer.peek() === null) {
         const examples = m.examples([])
         return guesses.concat(examples.map(example => {
-          return new ArgumentGuess(false, type, example, 0)
+          return new ArgumentGuess(false, type, example)
         }))
       }
 
@@ -313,9 +299,8 @@ export default class Oracle {
       }
 
       const examples = m.examples(attempt.tokens.map(t => t.lexeme))
-      const weight = attempt.tokens.reduce((w, t) => w + t.lexeme.length, 0)
       return guesses.concat(examples.map(example => {
-        return new ArgumentGuess(false, type, example, weight)
+        return new ArgumentGuess(false, type, example)
       }))
     }, [] as ArgumentGuess[])
   }
