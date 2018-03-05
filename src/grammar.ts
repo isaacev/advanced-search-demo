@@ -140,7 +140,7 @@ export default new Grammar({
     name : 'created',
     type : 'timestamp',
   }, {
-    name : 'modified',
+    name : 'updated',
     type : 'timestamp',
   }, {
     name : 'group',
@@ -171,7 +171,7 @@ export default new Grammar({
     symbol : 'before',
     type   : 'timestamp',
   }, {
-    symbol : 'after',
+    symbol : 'since',
     type   : 'timestamp',
   }, {
     symbol : 'around',
