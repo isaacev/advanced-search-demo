@@ -59,6 +59,7 @@
 }
 
 .query-guess {
+  height: 32px;
   margin: 0;
   padding: 4px 16px 4px 10px;
   border-top: 1px solid #eee;
@@ -79,8 +80,10 @@
 .query-guess span {
   height: 22px;
   margin-right: 4px;
-  padding: 2px 5px;
+  padding: 2px 6px;
+  display: inline-block;
   border-radius: 2px;
+  line-height: 22px;
 }
 
 .query-guess span.filter {
