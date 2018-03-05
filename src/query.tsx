@@ -5,6 +5,7 @@ import * as strings from './lang/strings'
 import Grammar from './grammar'
 
 const NONE_PENDING = -1
+type SpecialKey = 'tab' | 'enter' | 'up' | 'down' | 'esc' | 'undo' | 'redo'
 
 interface QueryProps {
   onDebug : (debugging: { title: string, data: Object }[]) => void
@@ -14,6 +15,7 @@ interface QueryState {
   literal : string
   guesses : oracle.Guess[]
   pending : number
+  history : { past : string[], future : string[] },
 }
 
 export class Query extends React.Component<QueryProps, QueryState> {
@@ -28,6 +30,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
       literal: '',
       guesses: Oracle.guess('', Grammar),
       pending: NONE_PENDING,
+      history: { past: [], future: [] },
     }
 
     if (this.props.onDebug) {
@@ -41,13 +44,20 @@ export class Query extends React.Component<QueryProps, QueryState> {
     }
   }
 
-  public setQuery (newValue: string) {
+  public setQuery (newValue: string, mutateHistory: boolean = true) {
     const guesses = Oracle.guess(newValue, Grammar)
+    const literal = newValue
+    const pending = this.pendingGuessIndexAtRest(guesses, literal)
     this.setState({
-      literal: newValue,
+      literal,
       guesses,
-      pending: this.pendingGuessIndexAtRest(guesses, newValue),
+      pending,
     })
+
+    if (mutateHistory) {
+      this.appendHistory(this.state.literal)
+    }
+
     if (this.props.onDebug) {
       this.props.onDebug([{
         title: 'Guesses',
@@ -71,7 +81,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.setQuery(newValue)
   }
 
-  handleSpecialKey (key: 'tab' | 'enter' | 'esc' | 'up' | 'down') {
+  handleSpecialKey (key: SpecialKey) {
     const curr = this.state.pending
     const total = this.state.guesses.length
 
@@ -100,6 +110,12 @@ export class Query extends React.Component<QueryProps, QueryState> {
           this.setState({ pending: curr + 1 })
         }
         break
+      case 'undo':
+        this.undo()
+        break
+      case 'redo':
+        this.redo()
+        break
     }
   }
 
@@ -108,6 +124,55 @@ export class Query extends React.Component<QueryProps, QueryState> {
     if (this.inputComponentRef) {
       this.inputComponentRef.focus()
     }
+  }
+
+  appendHistory (state: string) {
+    this.setState({
+      history: {
+        past: this.state.history.past.concat(state),
+        future: [],
+      },
+    })
+  }
+
+  undo () {
+    const depth = this.state.history.past.length
+    if (depth === 0) {
+      console.log('no past')
+      return
+    }
+
+    const oldState = this.state.history.past[depth - 1]
+    const fixedPast = this.state.history.past.slice(0, depth - 1)
+    const fixedFuture = this.state.history.future.concat(this.state.literal)
+
+    this.setQuery(oldState, false)
+    this.setState({
+      history: {
+        past: fixedPast,
+        future: fixedFuture,
+      },
+    })
+  }
+
+  redo () {
+    const depth = this.state.history.future.length
+    if (depth === 0) {
+      console.log('no future')
+      return
+    }
+
+    const newState = this.state.history.future[depth - 1]
+    const fixedPast = this.state.history.past.concat(this.state.literal)
+    const fixedFuture = this.state.history.future.slice(0, depth - 1)
+
+    this.setQuery(newState, false)
+    this.setState({
+      history: {
+        past: fixedPast,
+        future: fixedFuture,
+      },
+    })
   }
 
   render () {
@@ -143,7 +208,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
 interface InputProps {
   value        : string
   onChange     : (newValue: string) => void
-  onSpecialKey : (key: 'tab' | 'enter' | 'up' | 'down' | 'esc') => void
+  onSpecialKey : (key: SpecialKey) => void
 }
 
 class Input extends React.PureComponent<InputProps> {
@@ -172,6 +237,24 @@ class Input extends React.PureComponent<InputProps> {
       27: 'esc',
       38: 'up',
       40: 'down',
+    }
+
+    // Ctrl+Z and Ctrl+Y (Windows for undo/redo)
+    const ctrlZ = (event.keyCode === 90 && event.ctrlKey)
+    const ctrlY = (event.keyCode === 89 && event.ctrlKey)
+
+    // Command+Z and Command+Shift+Z (MacOS for undo/redo)
+    const cmdZ = (event.keyCode === 90 && !event.shiftKey && event.metaKey)
+    const cmdShiftZ = (event.keyCode === 90 && event.shiftKey && event.metaKey)
+
+    if (ctrlY || cmdShiftZ) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.props.onSpecialKey('redo')
+    } else if (ctrlZ || cmdZ) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.props.onSpecialKey('undo')
     }
 
     if (keys[event.keyCode]) {
