@@ -166,31 +166,31 @@ export default new Grammar({
           unit = (scalar > 1) ? 'weeks' : 'week'
         }
 
-        return [`${scalar} ${unit} ago`]
+        return `${scalar} ${unit} ago`
       } else {
-        return [`${tokens[0]} ${tokens[1]} ago`]
+        return `${tokens[0]} ${tokens[1]} ago`
       }
     },
   }, {
     template : '[now]',
     type     : 'timestamp',
     resolve  : () => Date.now(),
-    example  : () => ['now'],
+    example  : () => 'now',
   }, {
     template : '[today]',
     type     : 'timestamp',
     resolve  : () => Date.now(),
-    example  : () => ['today'],
+    example  : () => 'today',
   }, {
     template : '[yesterday]',
     type     : 'timestamp',
     resolve  : () => Date.now() - wordToMilliseconds('day'),
-    example  : () => ['yesterday'],
+    example  : () => 'yesterday',
   }, {
     template : '[me]',
     type     : 'user',
     resolve  : () => 'user1',
-    example  : () => ['me'],
+    example  : () => 'me',
   }, {
     template : '[hpotter|rweasley|hgranger]',
     type     : 'user',

@@ -218,12 +218,13 @@ class Guess extends React.PureComponent<GuessProps> {
       >
         <FilterSpan name={this.props.guess.name()} />
         {(this.props.guess.hasSymbol())
-            ? <OperatorSpan symbol={this.props.guess.symbol()} />
-            : <OperatorSpan />}
+          ? <OperatorSpan symbol={this.props.guess.symbol()} />
+          : <OperatorSpan />}
         {(this.props.guess.hasExample())
-            ? <ArgumentSpan type={this.props.guess.type().name} example={this.props.guess.example()} />
-            : <ArgumentSpan type={this.props.guess.type().name} />}
-        <DetailSpan detail="0 matches" />
+          ? <ArgumentSpan type={this.props.guess.type().name} example={this.props.guess.example().toString()} />
+          : <ArgumentSpan type={this.props.guess.type().name} />}
+        {(this.props.guess.hasExample() && this.props.guess.example().hasDetails()) &&
+            <DetailSpan detail={this.props.guess.example().details()} />}
       </li>
     )
   }

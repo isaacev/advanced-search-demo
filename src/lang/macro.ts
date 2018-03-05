@@ -8,7 +8,7 @@ export interface MacroOptions {
   template    : string
   type        : string
   resolve     : (...argv: string[]) => string | number
-  example     : (tokens: string[]) => string[]
+  example     : (tokens: string[]) => string | Example | (string | Example)[]
   precedence? : number
 }
 
@@ -35,13 +35,35 @@ type MacroAttemptSuccess = {
   value   : string | number
 }
 
+export class Example {
+  public preview : string
+  public detail? : string
+
+  constructor (preveiw: string, detail?: string) {
+    this.preview = preveiw
+    this.detail = detail
+  }
+
+  hasDetails () {
+    return (typeof this.detail === 'string')
+  }
+
+  details () {
+    return this.detail as string
+  }
+
+  toString () {
+    return this.preview
+  }
+}
+
 export class Macro {
-  public type       : Type
-  public template   : string
-  public syntax     : (MacroParameter | MacroKeyword)[]
-  public resolve    : (...argv: string[]) => string | number
-  public example    : (tokens: string[]) => string[]
-  public precedence : number = 0
+  public type         : Type
+  public template     : string
+  public syntax       : (MacroParameter | MacroKeyword)[]
+  public resolve      : (...argv: string[]) => string | number
+  public precedence   : number = 0
+  private rawExamples : (tokens: string[]) => string | Example | (string | Example)[]
 
   static process (template: string) {
     return Lexer.simpleTokens(template).filter(t => t.type === 'word').map(t => {
@@ -73,11 +95,26 @@ export class Macro {
     this.template = opts.template
     this.syntax = Macro.process(opts.template)
     this.resolve = opts.resolve
-    this.example = opts.example
+    this.rawExamples = opts.example
 
     if (opts.precedence) {
       this.precedence = opts.precedence
     }
+  }
+
+  examples (tokens: string[]): Example[] {
+    let raw = this.rawExamples(tokens)
+    if ((raw instanceof Array) === false) {
+      raw = [raw as string | Example]
+    }
+
+    return (raw as (string | Example)[]).map(raw => {
+      if (raw instanceof Example) {
+        return raw
+      } else {
+        return new Example(raw)
+      }
+    })
   }
 
   attempt (lexer: Lexer, grammar: Grammar): MacroAttemptSuccess | MacroAttemptFailure {

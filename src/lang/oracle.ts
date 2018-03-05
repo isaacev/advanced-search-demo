@@ -1,4 +1,5 @@
 import { Type } from './type'
+import { Example } from './macro'
 import Grammar from './grammar'
 import Lexer, { RichToken } from './lexer'
 
@@ -27,12 +28,12 @@ class OperatorGuess {
 class ArgumentGuess {
   public isPlaceholder : boolean
   public type          : Type
-  public example?      : string
+  public example?      : Example
   public weight?       : number
 
   constructor (isPlaceholder: true, type: Type)
-  constructor (isPlaceholder: false, type: Type, example: string, weight: number)
-  constructor (isPlaceholder: boolean, type: Type, example?: string, weight?: number) {
+  constructor (isPlaceholder: false, type: Type, example: Example, weight: number)
+  constructor (isPlaceholder: boolean, type: Type, example?: Example, weight?: number) {
     this.isPlaceholder = isPlaceholder
     this.type = type
     this.example = example
@@ -78,7 +79,7 @@ export class Guess {
     if (this.argument.isPlaceholder) {
       throw new Error('cannot get example')
     }
-    return this.argument.example as string
+    return this.argument.example as Example
   }
 
   weight () {
@@ -292,7 +293,7 @@ export default class Oracle {
        * an example.
        */
       if (lexer.peek() === null) {
-        const examples = m.example([])
+        const examples = m.examples([])
         return guesses.concat(examples.map(example => {
           return new ArgumentGuess(false, type, example, 0)
         }))
@@ -311,7 +312,7 @@ export default class Oracle {
         return guesses
       }
 
-      const examples = m.example(attempt.tokens.map(t => t.lexeme))
+      const examples = m.examples(attempt.tokens.map(t => t.lexeme))
       const weight = attempt.tokens.reduce((w, t) => w + t.lexeme.length, 0)
       return guesses.concat(examples.map(example => {
         return new ArgumentGuess(false, type, example, weight)
