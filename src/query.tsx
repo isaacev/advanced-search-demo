@@ -165,6 +165,7 @@ class Input extends React.PureComponent<InputProps> {
       <input
         type="text"
         autoFocus={true}
+        spellCheck={false}
         value={this.props.value}
         onChange={this.handleChange}
         onKeyDown={this.handleKeyDown}
