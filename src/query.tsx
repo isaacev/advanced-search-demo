@@ -1,6 +1,7 @@
 import * as React from 'react'
 import './query.css'
 import Oracle, * as oracle from './lang/oracle'
+import * as strings from './lang/strings'
 import Grammar from './grammar'
 
 const NONE_PENDING = -1
@@ -24,6 +25,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.handleChange = this.handleChange.bind(this)
     this.handleSpecialKey = this.handleSpecialKey.bind(this)
     this.handleMouseMove = this.handleMouseMove.bind(this)
+    this.handleMouseLeave = this.handleMouseLeave.bind(this)
 
     this.state = {
       literal: '',
@@ -48,7 +50,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
     this.setState({
       literal: newValue,
       guesses,
-      pending: NONE_PENDING,
+      pending: this.pendingGuessIndexAtRest(guesses, newValue),
     })
     if (this.props.onDebug) {
       this.props.onDebug([{
@@ -61,24 +63,39 @@ export class Query extends React.Component<QueryProps, QueryState> {
     }
   }
 
+  pendingGuessIndexAtRest (guesses: oracle.Guess[] = this.state.guesses, literal: string = this.state.literal) {
+    if (guesses.length > 0 && literal.length > 0) {
+      return 0
+    } else {
+      return NONE_PENDING
+    }
+  }
+
   handleChange (newValue: string) {
     this.setQuery(newValue)
   }
 
-  handleSpecialKey (key: 'enter' | 'esc' | 'up' | 'down') {
+  handleSpecialKey (key: 'tab' | 'enter' | 'esc' | 'up' | 'down') {
     const curr = this.state.pending
     const total = this.state.guesses.length
 
     switch (key) {
+      case 'tab':
+        if (curr > NONE_PENDING) {
+          const literal = this.state.literal
+          const guess = this.state.guesses[curr]
+          const ghost = Ghost.getGhost(literal, guess)
+          this.setQuery(literal + ghost)
+        }
+        break
       case 'enter':
         if (curr > NONE_PENDING) {
           const guess = this.state.guesses[curr]
           this.setQuery(guess.toString(false))
-          this.setState({ pending: NONE_PENDING })
         }
         break
       case 'esc':
-        // TODO
+        this.setState({ pending: NONE_PENDING })
         break
       case 'up':
         if (curr - 1 >= 0) {
@@ -101,6 +118,12 @@ export class Query extends React.Component<QueryProps, QueryState> {
     })
   }
 
+  handleMouseLeave () {
+    this.setState({
+      pending: this.pendingGuessIndexAtRest(),
+    })
+  }
+
   handleClick (guess: oracle.Guess) {
     this.setQuery(guess.toString(false))
     if (this.inputComponentRef) {
@@ -117,14 +140,20 @@ export class Query extends React.Component<QueryProps, QueryState> {
           onChange={this.handleChange}
           onSpecialKey={this.handleSpecialKey}
         />
+        {(this.state.pending > NONE_PENDING) && (
+          <Ghost
+            literal={this.state.literal}
+            guess={this.state.guesses[this.state.pending]}
+          />
+        )}
         <Guesses showing={this.state.showing}>
           {this.state.guesses.map((guess, i) =>
             <Guess
               key={i}
               guess={guess}
-              hovered={i === this.state.pending}
+              pending={i === this.state.pending}
               onMouseMove={() => this.handleMouseMove(i)}
-              onMouseLeave={() => this.setState({ pending: NONE_PENDING })}
+              onMouseLeave={this.handleMouseLeave}
               onClick={(guess) => this.handleClick(guess)}
             />
           )}
@@ -137,7 +166,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
 interface InputProps {
   value        : string
   onChange     : (newValue: string) => void
-  onSpecialKey : (key: 'up' | 'down' | 'enter' | 'esc') => void
+  onSpecialKey : (key: 'tab' | 'up' | 'down' | 'enter' | 'esc') => void
 }
 
 class Input extends React.PureComponent<InputProps> {
@@ -161,6 +190,7 @@ class Input extends React.PureComponent<InputProps> {
 
   handleKeyDown (event: React.KeyboardEvent<HTMLInputElement>) {
     const keys = {
+      9: 'tab',
       13: 'enter',
       27: 'esc',
       38: 'up',
@@ -189,6 +219,36 @@ class Input extends React.PureComponent<InputProps> {
   }
 }
 
+class Ghost extends React.PureComponent<{ literal: string, guess: oracle.Guess }> {
+  static noramalize (str: string) {
+    return str
+      .toLowerCase()
+      .replace(/^\s+/, '')
+      .replace(/\s+/g, ' ')
+  }
+
+  static getGhost (literal: string, guess: oracle.Guess) {
+    const normLiteral = Ghost.noramalize(literal)
+    const normGuess = Ghost.noramalize(guess.toString(false))
+
+    if (strings.hasPrefix(normLiteral, normGuess)) {
+      return normGuess.substring(normLiteral.length)
+    } else {
+      return ''
+    }
+  }
+
+  render () {
+    const ghost = Ghost.getGhost(this.props.literal, this.props.guess)
+    return (
+      <div id="query-ghost">
+        <span className="hidden">{this.props.literal}</span>
+        <span className="ghost">{ghost}</span>
+      </div>
+    )
+  }
+}
+
 class Guesses extends React.PureComponent<{ showing: boolean }> {
   render () {
     return (
@@ -201,7 +261,7 @@ class Guesses extends React.PureComponent<{ showing: boolean }> {
 
 interface GuessProps {
   guess        : oracle.Guess
-  hovered      : boolean
+  pending      : boolean
   onMouseMove  : () => void
   onMouseLeave : () => void
   onClick      : (guess: oracle.Guess) => void
@@ -211,7 +271,7 @@ class Guess extends React.PureComponent<GuessProps> {
   render () {
     return (
       <li
-        className={'query-guess' + (this.props.hovered ? ' hovered' : '')}
+        className={'query-guess' + (this.props.pending ? ' pending' : '')}
         onMouseMove={this.props.onMouseMove}
         onMouseLeave={this.props.onMouseLeave}
         onClick={() => this.props.onClick(this.props.guess)}
