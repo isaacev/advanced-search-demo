@@ -7,7 +7,7 @@ export interface OperatorOptions {
   aliases? : string[]
 }
 
-export class Operator {
+export class OperatorSyntax {
   public symbol  : string
   public type    : Type
   public aliases : string[]

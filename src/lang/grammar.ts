@@ -1,7 +1,7 @@
 import { Type, TypeOptions } from './type'
-import { Filter, FilterOptions } from './filter'
-import { Operator, OperatorOptions } from './operator'
-import { Macro, MacroOptions } from './macro'
+import { FilterSyntax, FilterOptions } from './filter'
+import { OperatorSyntax, OperatorOptions } from './operator'
+import { MacroSyntax, MacroOptions } from './macro'
 import * as errors from './errors'
 
 interface GrammarOptions {
@@ -12,10 +12,10 @@ interface GrammarOptions {
 }
 
 export default class Grammar {
-  public types     : Type[]     = []
-  public operators : Operator[] = []
-  public filters   : Filter[]   = []
-  public macros    : Macro[]    = []
+  public types     : Type[]           = []
+  public operators : OperatorSyntax[] = []
+  public filters   : FilterSyntax[]   = []
+  public macros    : MacroSyntax[]    = []
 
   constructor (opts: GrammarOptions = {}) {
     const star = new Type('*')
@@ -80,7 +80,7 @@ export default class Grammar {
 
   public newOperator (opts: OperatorOptions) {
     const type = this.getType(opts.type)
-    this.operators.push(new Operator(opts.symbol, type, opts.aliases))
+    this.operators.push(new OperatorSyntax(opts.symbol, type, opts.aliases))
   }
 
   public hasOperator (symbol: string) {
@@ -101,7 +101,7 @@ export default class Grammar {
     throw errors.fatal(`unknown operator: "${symbol}"`)
   }
 
-  public compatibleOperators (type: Type): Operator[] {
+  public compatibleOperators (type: Type): OperatorSyntax[] {
     const allSupertypes = this.allSupertypes(type)
     return this.operators.filter(op => {
       return allSupertypes.indexOf(op.type) > -1
@@ -110,7 +110,7 @@ export default class Grammar {
 
   public newFilter (opts: FilterOptions) {
     const type = this.getType(opts.type)
-    this.filters.push(new Filter(opts.name, type, opts.aliases))
+    this.filters.push(new FilterSyntax(opts.name, type, opts.aliases))
   }
 
   public hasFilter (name: string) {
@@ -133,11 +133,11 @@ export default class Grammar {
 
   public newMacro (opts: MacroOptions) {
     const type = this.getType(opts.type)
-    this.macros.push(new Macro(type, opts))
+    this.macros.push(new MacroSyntax(type, opts))
     this.macros.sort((a, b) => b.precedence - a.precedence)
   }
 
-  public compatibleMacros (type: Type): Macro[] {
+  public compatibleMacros (type: Type): MacroSyntax[] {
     const allSupertypes = this.allSupertypes(type)
     return this.macros.filter(op => {
       return allSupertypes.indexOf(op.type) > -1

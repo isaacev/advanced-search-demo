@@ -57,7 +57,7 @@ export class Example {
   }
 }
 
-export class Macro {
+export class MacroSyntax {
   public type         : Type
   public template     : string
   public syntax       : (MacroParameter | MacroKeyword)[]
@@ -93,7 +93,7 @@ export class Macro {
   constructor (type: Type, opts: MacroOptions) {
     this.type = type
     this.template = opts.template
-    this.syntax = Macro.process(opts.template)
+    this.syntax = MacroSyntax.process(opts.template)
     this.resolve = opts.resolve
     this.rawExamples = opts.example
 

@@ -7,7 +7,7 @@ export interface FilterOptions {
   aliases? : string[]
 }
 
-export class Filter {
+export class FilterSyntax {
   public name    : string
   public type    : Type
   public aliases : string[]
