@@ -1,4 +1,5 @@
 import Grammar from './lang/grammar'
+import * as strings from './lang/strings'
 
 function wordToMilliseconds (word: string) {
   const MS_SEC  = 1  * 1000
@@ -66,6 +67,11 @@ export default new Grammar({
     supertype  : 'number',
     validate   : (n) => /^\d+$/.test(n),
     evaluate   : (n) => parseInt(n, 10),
+  }, {
+    name       : 'status',
+    precedence : 2,
+    validate   : (s) => /^(submitted|in-progress|archived)$/i.test(s),
+    evaluate   : (s) => s.toLowerCase(),
   }],
 
   /**
@@ -82,6 +88,9 @@ export default new Grammar({
   }, {
     name : 'author',
     type : 'user',
+  }, {
+    name : 'status',
+    type : 'status',
   }],
 
   /**
@@ -173,5 +182,31 @@ export default new Grammar({
     type     : 'user',
     resolve  : () => 'user1',
     example  : () => ['me'],
+  }, {
+    template : '[submitted|in-progress|archived]',
+    type     : 'status',
+    resolve  : (status) => status.toLowerCase(),
+    example  : (tokens) => {
+      const status = (tokens[0] || '').toLowerCase()
+      if (status === '') {
+        return [
+          'submitted',
+          'in-progress',
+          'archived',
+        ]
+      } else if (strings.prefixedBy(status, 'submitted')) {
+        return ['submitted']
+      } else if (strings.prefixedBy(status, 'in-progress')) {
+        return ['in-progress']
+      } else if (strings.prefixedBy(status, 'archived')) {
+        return ['archived']
+      } else {
+        return [
+          'submitted',
+          'in-progress',
+          'archived',
+        ]
+      }
+    }
   }]
 })
