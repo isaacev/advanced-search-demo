@@ -55,7 +55,7 @@ export class Macro {
         }
       } else if (t.lexeme[0] === '[') {
         // Parse as macro keyword WITH aliases.
-        const match = t.lexeme.match(/^\[(\w+(?:\|\w+)*)\]$/)
+        const match = t.lexeme.match(/^\[([^\|]+(?:\|[^\|]+)*)\]$/)
         if (match) {
           return { type: 'keyword', aliases: match[1].split('|') } as MacroKeyword
         } else {
