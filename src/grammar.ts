@@ -86,6 +86,9 @@ export default new Grammar({
     name : 'last-updated',
     type : 'timestamp',
   }, {
+    name : 'updated-since',
+    type : 'timestamp',
+  }, {
     name : 'author',
     type : 'user',
   }, {
@@ -188,17 +191,11 @@ export default new Grammar({
     resolve  : (username) => username,
     example  : (tokens) => {
       const username = (tokens[0] || '').toLowerCase()
-      if (username === '') {
-        return [ 'hpotter', 'rweasley', 'hgranger' ]
-      } else if (strings.prefixedBy(status, 'hpotter')) {
-        return [ 'hpotter' ]
-      } else if (strings.prefixedBy(status, 'rweasley')) {
-        return [ 'rweasley' ]
-      } else if (strings.prefixedBy(status, 'hgranger')) {
-        return [ 'hgranger' ]
-      } else {
-        return [ 'hpotter', 'rweasley', 'hgranger' ]
-      }
+      return strings.thoseWithPrefix(username, ...[
+        'hpotter',
+        'rweasley',
+        'hgranger',
+      ])
     }
   }, {
     template : '[submitted|in-progress|archived]',
@@ -206,25 +203,11 @@ export default new Grammar({
     resolve  : (status) => status.toLowerCase(),
     example  : (tokens) => {
       const status = (tokens[0] || '').toLowerCase()
-      if (status === '') {
-        return [
-          'submitted',
-          'in-progress',
-          'archived',
-        ]
-      } else if (strings.prefixedBy(status, 'submitted')) {
-        return ['submitted']
-      } else if (strings.prefixedBy(status, 'in-progress')) {
-        return ['in-progress']
-      } else if (strings.prefixedBy(status, 'archived')) {
-        return ['archived']
-      } else {
-        return [
-          'submitted',
-          'in-progress',
-          'archived',
-        ]
-      }
+      return strings.thoseWithPrefix(status, ...[
+        'submitted',
+        'in-progress',
+        'archived',
+      ])
     }
   }]
 })

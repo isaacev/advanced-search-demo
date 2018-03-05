@@ -111,7 +111,7 @@ export class Macro {
             argv.push(realToken.lexeme)
             break
           } else {
-            if (strings.prefixedBy(realToken.lexeme, ...templateToken.aliases)) {
+            if (strings.anyHavePrefix(realToken.lexeme, ...templateToken.aliases)) {
               tokens.push(realToken)
               return {
                 success: false,

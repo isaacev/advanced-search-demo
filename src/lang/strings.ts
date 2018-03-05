@@ -1,8 +1,20 @@
-export function prefixedBy (prefix: string, ...whole: string[]) {
-  for (let w of whole) {
-    if (w.substring(0, prefix.length) === prefix) {
+export function hasPrefix (pre: string, str: string) {
+  if (str.substring(0, pre.length) === pre) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function anyHavePrefix (pre: string, ...strs: string[]) {
+  for (let str of strs) {
+    if (hasPrefix(pre, str)) {
       return true
     }
   }
   return false
+}
+
+export function thoseWithPrefix (pre: string, ...strs: string[]) {
+  return strs.filter(str => hasPrefix(pre, str))
 }

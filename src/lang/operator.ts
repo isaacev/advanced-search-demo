@@ -23,7 +23,7 @@ export class Operator {
   }
 
   prefixedBy (prefix: string) {
-    return strings.prefixedBy(prefix, ...this.aliases.concat(this.symbol))
+    return strings.anyHavePrefix(prefix, ...this.aliases.concat(this.symbol))
   }
 
   toJSON () {

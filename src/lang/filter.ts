@@ -19,7 +19,7 @@ export class Filter {
   }
 
   prefixedBy (prefix: string) {
-    return strings.prefixedBy(prefix, ...this.aliases.concat(this.name))
+    return strings.anyHavePrefix(prefix, ...this.aliases.concat(this.name))
   }
 
   toJSON () {
