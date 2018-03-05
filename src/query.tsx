@@ -47,7 +47,7 @@ export class Query extends React.Component<QueryProps, QueryState> {
   public setQuery (newValue: string, mutateHistory: boolean = true) {
     const guesses = Oracle.guess(newValue, Grammar)
     const literal = newValue
-    const pending = this.pendingGuessIndexAtRest(guesses, literal)
+    const pending = (guesses.length > 0 && literal.length > 0) ? 0 : NONE_PENDING
     this.setState({
       literal,
       guesses,
@@ -66,14 +66,6 @@ export class Query extends React.Component<QueryProps, QueryState> {
         title: 'Grammar',
         data: Grammar,
       }])
-    }
-  }
-
-  pendingGuessIndexAtRest (guesses: oracle.Guess[] = this.state.guesses, literal: string = this.state.literal) {
-    if (guesses.length > 0 && literal.length > 0) {
-      return 0
-    } else {
-      return NONE_PENDING
     }
   }
 
