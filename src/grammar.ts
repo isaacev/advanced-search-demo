@@ -149,7 +149,7 @@ export default new Grammar({
     name : 'status',
     type : 'status',
   }, {
-    name : 'created-by',
+    name : 'creator',
     type : 'user',
   }, {
     name : 'publisher',
