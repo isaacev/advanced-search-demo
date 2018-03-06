@@ -2,6 +2,7 @@ import * as React from 'react'
 import Oracle from '../lang/oracle'
 import { PredicatePlaceholder, Predicate } from '../lang/predicate'
 import Grammar from '../grammar'
+import Validate from '../lang/validate'
 import { Ghost } from './ghost'
 import { Input, SpecialKey } from './input'
 import { Validator } from './validator'
@@ -176,12 +177,17 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         }
         break
       case 'tab':
-      case 'enter':
         if (this.state.advice.pending) {
           const value = this.state.input.value
           const pending = this.state.advice.pending
           const ghost = Ghost.getGhost(value, pending)
           this.updateInput(this.state.input.setValue(value + ghost))
+        }
+        break
+      case 'enter':
+        const predicate = Validate.predicate(this.state.input.value, Grammar)
+        if (predicate) {
+          this.handleCommitPredicateClick(predicate)
         }
         break
       case 'esc':
