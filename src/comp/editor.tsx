@@ -189,6 +189,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
 
   private handleInputSpecialKey (key: SpecialKey) {
     switch (key) {
+      case 'ctrl-backspace':
+        this.updateInput(new EditorInputState('', []))
+        break
       case 'backspace':
         if (this.state.input.value === '') {
           this.updateInput(this.state.input.popPredicate())
