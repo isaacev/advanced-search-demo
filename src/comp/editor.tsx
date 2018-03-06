@@ -87,6 +87,9 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     const total = this.state.guesses.length
 
     switch (key) {
+      case 'backspace':
+        console.log('backspace!')
+        break
       case 'tab':
       case 'enter':
         if (curr > NONE_PENDING) {

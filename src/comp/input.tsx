@@ -3,7 +3,14 @@ import { PredicatePlaceholder } from '../lang/predicate'
 import { Ghost } from './ghost'
 import './input.css'
 
-export type SpecialKey = 'tab' | 'enter' | 'up' | 'down' | 'esc' | 'undo' | 'redo'
+export type SpecialKey = 'tab'
+                       | 'enter'
+                       | 'up'
+                       | 'down'
+                       | 'esc'
+                       | 'undo'
+                       | 'redo'
+                       | 'backspace'
 
 interface InputProps {
   value        : string
@@ -33,6 +40,7 @@ export class Input extends React.PureComponent<InputProps> {
 
   handleKeyDown (event: React.KeyboardEvent<HTMLInputElement>) {
     const keys = {
+      8: 'backspace',
       9: 'tab',
       13: 'enter',
       27: 'esc',
