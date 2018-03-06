@@ -3,7 +3,10 @@ export function fatal (msg: string = 'unknown error'): Error {
 }
 
 export class SyntaxError extends Error {
+  public start : number
+
   constructor (start: number, message: string) {
-    super(`(at ${start + 1}) ${message}`)
+    super(message)
+    this.start = start
   }
 }

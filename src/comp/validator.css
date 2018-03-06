@@ -1,8 +1,28 @@
 #validator {
+  width: 48px;
+  height: 48px;
+}
+
+#validator p.info {
+  margin: 0;
+  padding: 0;
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 2;
+  top: 16px;
+  right: 48px;
+  font-size: 12px;
+  text-align: right;
+  opacity: 0.0;
+  transition: opacity 0.2s;
+}
+
+#validator.hidden p.info,
+#validator.waiting p.info,
+#validator.okay p.info {
+  display: none;
+}
+
+#validator:hover p.info {
+  opacity: 1.0;
 }
 
 #validator button {
@@ -29,6 +49,10 @@
   background: #95a5a6;
 }
 
+#validator.waiting p.info {
+  color: #95a5a6;
+}
+
 #validator.okay {
   cursor: pointer;
 }
@@ -38,10 +62,18 @@
   cursor: pointer;
 }
 
+#validator.okay p.info {
+  color: #2ecc71;
+}
+
 #validator.okay:hover button {
   background: #27ae60;
 }
 
 #validator.error button {
   background: #e74c3c;
+}
+
+#validator.error p.info {
+  color: #e74c3c;
 }

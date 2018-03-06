@@ -9,3 +9,7 @@
 #editor-flexible #editor-input {
 	flex-grow: 1;
 }
+
+#editor-flexible #editor-validator {
+  flex-grow: 0;
+}

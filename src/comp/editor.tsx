@@ -130,11 +130,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
             onChange={this.handleInputChange}
             onSpecialKey={this.handleInputSpecialKey}
           />
+          <Validator
+            input={this.state.input}
+            onCommitPredicateClick={this.handleCommitPredicateClick}
+          />
         </Flexible>
-        <Validator
-          input={this.state.input}
-          onCommitPredicateClick={this.handleCommitPredicateClick}
-        />
         <Completions
           advice={this.state.advice}
           onCompletionClick={this.handleCompletionClick}

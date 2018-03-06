@@ -32,7 +32,7 @@ export default class Compile {
 
   private static operator (type: Type, lexer: Lexer, grammar: Grammar): Operator {
     if (lexer.peek() === null) {
-      throw new errors.SyntaxError(lexer.lastPosition(), `unexpected end of predicate`)
+      throw new errors.SyntaxError(lexer.lastPosition(), `missing an operator and argument`)
     }
 
     const tok = lexer.next() as RichToken
@@ -50,7 +50,7 @@ export default class Compile {
 
   private static argument (type: Type, lexer: Lexer, grammar: Grammar): Argument {
     if (lexer.peek() === null) {
-      throw new errors.SyntaxError(lexer.lastPosition(), `unexpected end of predicate`)
+      throw new errors.SyntaxError(lexer.lastPosition(), `missing an argument`)
     }
 
     for (let macro of grammar.compatibleMacros(type)) {
@@ -65,6 +65,6 @@ export default class Compile {
     }
 
     const tok = lexer.next() as RichToken
-    throw new errors.SyntaxError(tok.pos, `unknown argument syntax`)
+    throw new errors.SyntaxError(tok.pos, `cannot understand argument`)
   }
 }

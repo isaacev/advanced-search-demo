@@ -27,6 +27,7 @@ interface ValidatorProps {
 }
 
 interface ValidatorState {
+  info       : string
   status     : Status
   predicate? : Predicate
 }
@@ -46,6 +47,7 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
 
     // Initialize component state.
     this.state = {
+      info: '',
       status: Status.hidden,
     }
   }
@@ -64,6 +66,7 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
     }
 
     this.setState({
+      info: '',
       status: nonEmptyQuery ? Status.waiting : Status.hidden
     })
   }
@@ -72,11 +75,13 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
     try {
       const predicate = Compile.predicate(query, Grammar)
       this.setState({
+        info: '',
         status: Status.okay,
         predicate,
       })
     } catch (err) {
       this.setState({
+        info: err.message,
         status: Status.error,
       })
     }
@@ -89,6 +94,7 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
 
     return (
       <div id="validator" className={Status[this.state.status]}>
+        <p className="info">{this.state.info}</p>
         <button onClick={this.handleCommitPredicateClick}>
           <FontAwesomeIcon
             icon={StatusToIcon[Status[this.state.status]]}
