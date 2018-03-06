@@ -149,10 +149,28 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
   }
 
+  private updateDebug (inputState: EditorInputState, adviceState: EditorAdviceState) {
+    const predicate = Validate.predicate(inputState.value, Grammar)
+    this.props.onDebug([{
+      title: 'Input',
+      data: {
+        valid: !!predicate,
+        query: predicate ? predicate : undefined,
+      },
+    }, {
+      title: 'Completions',
+      data: adviceState.completions,
+    }, {
+      title: 'Grammar',
+      data: Grammar,
+    }])
+  }
+
   private updateAdvice (inputState: EditorInputState = this.state.input) {
     const completions = Oracle.guess(inputState.value, Grammar)
     const newAdviceState = new EditorAdviceState(0, completions)
     this.setState({ advice: newAdviceState })
+    this.updateDebug(inputState, newAdviceState)
   }
 
   private updateInput (newValue: EditorInputState) {
