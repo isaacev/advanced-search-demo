@@ -1,3 +1,8 @@
+span.predicate {
+  height: 26px;
+  display: inline-block;
+}
+
 span.predicate span {
   height: 22px;
   padding: 2px 6px;

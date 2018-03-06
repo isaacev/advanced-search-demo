@@ -22,6 +22,7 @@ const StatusToIcon = {
 
 interface ValidatorProps {
   query   : string,
+  onClick : (predicate: Predicate) => void,
 }
 
 interface ValidatorState {
@@ -32,10 +33,17 @@ interface ValidatorState {
 export class Validator extends React.Component<ValidatorProps, ValidatorState> {
   constructor (props: ValidatorProps) {
     super(props)
+    this.handleClick = this.handleClick.bind(this)
     this.validateQuery = timing.unaryDebounce<string>(this.validateQuery.bind(this), 250)
 
     this.state = {
       status: Status.hidden,
+    }
+  }
+
+  handleClick () {
+    if (this.state.predicate) {
+      this.props.onClick(this.state.predicate)
     }
   }
 
@@ -72,7 +80,7 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
 
     return (
       <div id="validator" className={Status[this.state.status]}>
-        <button>
+        <button onClick={this.handleClick}>
           <FontAwesomeIcon
             icon={StatusToIcon[Status[this.state.status]]}
             spin={this.state.status === Status.waiting}

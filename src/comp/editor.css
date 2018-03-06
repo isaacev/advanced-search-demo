@@ -5,3 +5,14 @@
   border-radius: 2px;
   font: 16px "Roboto Mono", monospace;
 }
+
+#editor div.flexible {
+  display: flex;
+}
+
+#editor div.flexible p.predicates {
+  margin: 0;
+  padding: 12px 0 0 10px;
+  flex-grow: 0;
+  white-space: nowrap;
+}
