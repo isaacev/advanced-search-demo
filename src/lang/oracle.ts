@@ -142,10 +142,10 @@ export class Guess {
 export default class Oracle {
   public static guess (partial: string, grammar: Grammar) {
     const lexer = new Lexer(partial, grammar)
-    return Oracle.filter(lexer, grammar)
+    return Oracle.predicate(lexer, grammar)
   }
 
-  private static filter (lexer: Lexer, grammar: Grammar): Guess[] {
+  private static predicate (lexer: Lexer, grammar: Grammar): Guess[] {
     if (lexer.peek() === null) {
       /**
        * The language expected the beginning of a filter but instead found an
