@@ -59,7 +59,8 @@ export default class Compile {
       lexer.undo()
 
       if (attempt.success) {
-        return new Argument(type, attempt.value)
+        const literal = attempt.tokens.map(t => t.lexeme).join(' ')
+        return new Argument(type, literal, attempt.value)
       }
     }
 

@@ -48,7 +48,7 @@ export class PredicateSpan extends React.PureComponent<{ predicate: PredicatePla
   getArgumentSpan () {
     const type = this.props.predicate.argument.type.name
     if (this.props.predicate.argument instanceof Argument) {
-      const example = this.props.predicate.argument.value.toString()
+      const example = this.props.predicate.argument.toString()
       return <ArgumentSpan type={type} example={example} />
     } else if (this.props.predicate.argument.example) {
       const example = this.props.predicate.argument.example.toString()

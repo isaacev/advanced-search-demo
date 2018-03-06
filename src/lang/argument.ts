@@ -28,21 +28,24 @@ export class ArgumentPlaceholder {
 }
 
 export class Argument extends ArgumentPlaceholder {
-  public value : string | number
+  public literal  : string
+  public resolved : string | number
 
-  constructor (type: Type, value: string | number) {
+  constructor (type: Type, literal: string, resolved: string | number) {
     super(type)
-    this.value = value
+    this.literal = literal
+    this.resolved = resolved
   }
 
   toJSON (): Object {
     return {
       type: this.type,
-      value: this.value,
+      literal: this.literal,
+      resolved: this.resolved,
     }
   }
 
   toString () {
-    return this.value.toString()
+    return this.literal
   }
 }
