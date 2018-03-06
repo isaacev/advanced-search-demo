@@ -1,32 +1,82 @@
 import * as React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinnerThird, faPlus, faTimes } from '@fortawesome/fontawesome-pro-regular'
+import * as timing from '../timing'
+import Grammar from '../grammar'
+import Compile from '../lang/compile'
+import { Predicate } from '../lang/predicate'
 import './validator.css'
 
-export enum Status {
+enum Status {
+  hidden,
   waiting,
   okay,
   error,
 }
 
-const statusToIcon = {
+const StatusToIcon = {
   waiting: faSpinnerThird,
   okay: faPlus,
   error: faTimes,
 }
 
-export class Validator extends React.PureComponent<{ query: string }> {
-  render () {
-    const status = Status.waiting
+interface ValidatorProps {
+  query   : string,
+}
 
-    if (this.props.query.trim() === '') {
+interface ValidatorState {
+  status     : Status
+  predicate? : Predicate
+}
+
+export class Validator extends React.Component<ValidatorProps, ValidatorState> {
+  constructor (props: ValidatorProps) {
+    super(props)
+    this.validateQuery = timing.unaryDebounce<string>(this.validateQuery.bind(this), 250)
+
+    this.state = {
+      status: Status.hidden,
+    }
+  }
+
+  componentWillReceiveProps (nextProps: ValidatorProps) {
+    const nonEmptyQuery = nextProps.query.trim().length > 0
+
+    if (nonEmptyQuery) {
+      this.validateQuery(nextProps.query)
+    }
+
+    this.setState({
+      status: nonEmptyQuery ? Status.waiting : Status.hidden
+    })
+  }
+
+  validateQuery (query: string) {
+    try {
+      const predicate = Compile.predicate(query, Grammar)
+      this.setState({
+        status: Status.okay,
+        predicate,
+      })
+    } catch (err) {
+      this.setState({
+        status: Status.error,
+      })
+    }
+  }
+
+  render () {
+    if (this.state.status === Status.hidden) {
       return null
     }
 
     return (
-      <div id="validator" className={Status[status]}>
+      <div id="validator" className={Status[this.state.status]}>
         <button>
-          <FontAwesomeIcon icon={statusToIcon[Status[status]]} spin={status === Status.waiting} />
+          <FontAwesomeIcon
+            icon={StatusToIcon[Status[this.state.status]]}
+            spin={this.state.status === Status.waiting}
+          />
         </button>
       </div>
     )
