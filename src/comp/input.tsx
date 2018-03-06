@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { PredicatePlaceholder } from '../lang/predicate'
+import { EditorInputState, EditorAdviceState } from './editor'
 import { Ghost } from './ghost'
 import './input.css'
 
@@ -13,8 +13,8 @@ export type SpecialKey = 'tab'
                        | 'backspace'
 
 interface InputProps {
-  value        : string
-  pending      : PredicatePlaceholder | null
+  input        : EditorInputState
+  advice       : EditorAdviceState
   onChange     : (newValue: string) => void
   onSpecialKey : (key: SpecialKey) => void
 }
@@ -24,7 +24,9 @@ export class Input extends React.PureComponent<InputProps> {
 
   constructor (props: InputProps) {
     super(props)
-    this.handleChange = this.handleChange.bind(this)
+
+    // Bind event handlers.
+    this.handleChange  = this.handleChange.bind(this)
     this.handleKeyDown = this.handleKeyDown.bind(this)
   }
 
@@ -40,12 +42,18 @@ export class Input extends React.PureComponent<InputProps> {
 
   handleKeyDown (event: React.KeyboardEvent<HTMLInputElement>) {
     const keys = {
-      8: 'backspace',
       9: 'tab',
       13: 'enter',
       27: 'esc',
       38: 'up',
       40: 'down',
+    }
+
+    if (event.keyCode === 8 && this.props.input.value === '') {
+      event.preventDefault()
+      event.stopPropagation()
+      this.props.onSpecialKey('backspace')
+      return
     }
 
     // Ctrl+Z and Ctrl+Y (Windows for undo/redo)
@@ -80,15 +88,15 @@ export class Input extends React.PureComponent<InputProps> {
           type="text"
           autoFocus={true}
           spellCheck={false}
-          value={this.props.value}
+          value={this.props.input.value}
           onChange={this.handleChange}
           onKeyDown={this.handleKeyDown}
           ref={self => this.inputElementRef = self}
         />
-        {(this.props.pending !== null) && (
+        {(this.props.advice.pending !== null) && (
           <Ghost
-            literal={this.props.value}
-            guess={this.props.pending}
+            literal={this.props.input.value}
+            pending={this.props.advice.pending}
           />
         )}
       </div>

@@ -13,9 +13,9 @@ class FilterSpan extends React.PureComponent<{ name: string }> {
 class OperatorSpan extends React.PureComponent<{ symbol?: string }> {
   render () {
     if (this.props.symbol) {
-      return <span className="operator completion">{this.props.symbol}</span>
+      return <span className="operator">{this.props.symbol}</span>
     } else {
-      return <span className="operator placeholder">&nbsp;&nbsp;</span>
+      return <span className="operator">&nbsp;&nbsp;</span>
     }
   }
 }
@@ -23,9 +23,9 @@ class OperatorSpan extends React.PureComponent<{ symbol?: string }> {
 class ArgumentSpan extends React.PureComponent<{ type: string, example?: string }> {
   render () {
     if (this.props.example) {
-      return <span className="argument completion">{this.props.example}</span>
+      return <span className="argument">{this.props.example}</span>
     } else {
-      return <span className="argument completion">{this.props.type}</span>
+      return <span className="argument">{this.props.type}</span>
     }
   }
 }

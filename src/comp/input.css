@@ -24,3 +24,7 @@
 #editor-predicates + #editor-input input {
   padding-left: 10px;
 }
+
+#editor-predicates + #editor-input #ghost {
+  padding-left: 10px;
+}

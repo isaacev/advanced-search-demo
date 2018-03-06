@@ -5,7 +5,7 @@ import './ghost.css'
 
 interface GhostProps {
   literal : string
-  guess   : PredicatePlaceholder
+  pending : PredicatePlaceholder
 }
 
 export class Ghost extends React.PureComponent<GhostProps> {
@@ -16,19 +16,19 @@ export class Ghost extends React.PureComponent<GhostProps> {
       .replace(/\s+/g, ' ')
   }
 
-  static getGhost (literal: string, guess: PredicatePlaceholder) {
+  static getGhost (literal: string, predicate: PredicatePlaceholder) {
     const normLiteral = Ghost.noramalize(literal)
-    const normGuess = Ghost.noramalize(guess.toString())
+    const normPredicate = Ghost.noramalize(predicate.toString())
 
-    if (strings.hasPrefix(normLiteral, normGuess)) {
-      return normGuess.substring(normLiteral.length)
+    if (strings.hasPrefix(normLiteral, normPredicate)) {
+      return normPredicate.substring(normLiteral.length)
     } else {
       return ''
     }
   }
 
   render () {
-    const ghost = Ghost.getGhost(this.props.literal, this.props.guess)
+    const ghost = Ghost.getGhost(this.props.literal, this.props.pending)
     return (
       <div id="ghost">
         <span className="hidden">{this.props.literal}</span>

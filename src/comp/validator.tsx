@@ -2,6 +2,7 @@ import * as React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinnerThird, faPlus, faTimes } from '@fortawesome/fontawesome-pro-regular'
 import * as timing from '../timing'
+import { EditorInputState } from './editor'
 import Grammar from '../grammar'
 import Compile from '../lang/compile'
 import { Predicate } from '../lang/predicate'
@@ -21,8 +22,8 @@ const StatusToIcon = {
 }
 
 interface ValidatorProps {
-  query   : string,
-  onClick : (predicate: Predicate) => void,
+  input                  : EditorInputState,
+  onCommitPredicateClick : (predicate: Predicate) => void,
 }
 
 interface ValidatorState {
@@ -33,25 +34,33 @@ interface ValidatorState {
 export class Validator extends React.Component<ValidatorProps, ValidatorState> {
   constructor (props: ValidatorProps) {
     super(props)
-    this.handleClick = this.handleClick.bind(this)
+
+    // Bind event handlers.
+    this.handleCommitPredicateClick = this.handleCommitPredicateClick.bind(this)
+
+    // Attach debounce timer so that Validator#validateQuery is not run
+    // *every* time that the input value is changed. The input is only
+    // validated once there have been no changes to the input value for
+    // 250 milliseconds.
     this.validateQuery = timing.unaryDebounce<string>(this.validateQuery.bind(this), 250)
 
+    // Initialize component state.
     this.state = {
       status: Status.hidden,
     }
   }
 
-  handleClick () {
+  handleCommitPredicateClick () {
     if (this.state.predicate) {
-      this.props.onClick(this.state.predicate)
+      this.props.onCommitPredicateClick(this.state.predicate)
     }
   }
 
   componentWillReceiveProps (nextProps: ValidatorProps) {
-    const nonEmptyQuery = nextProps.query.trim().length > 0
+    const nonEmptyQuery = nextProps.input.value.trim().length > 0
 
     if (nonEmptyQuery) {
-      this.validateQuery(nextProps.query)
+      this.validateQuery(nextProps.input.value)
     }
 
     this.setState({
@@ -80,7 +89,7 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
 
     return (
       <div id="validator" className={Status[this.state.status]}>
-        <button onClick={this.handleClick}>
+        <button onClick={this.handleCommitPredicateClick}>
           <FontAwesomeIcon
             icon={StatusToIcon[Status[this.state.status]]}
             spin={this.state.status === Status.waiting}
