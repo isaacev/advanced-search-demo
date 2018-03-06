@@ -1,0 +1,44 @@
+#validator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+#validator button {
+  width: 24px;
+  height: 24px;
+  display: block;
+  margin: 12px;
+  padding: 0;
+  background: #95a5a6;
+  transition: background-color 0.2s;
+  border-style: none;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 24px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
+
+#validator button:focus {
+  outline: none;
+}
+
+#validator.waiting button {
+  background: #95a5a6;
+}
+
+#validator.okay button {
+  background: #2ecc71;
+}
+
+#validator.okay:hover button {
+  background: #27ae60;
+}
+
+#validator.error button {
+  background: #e74c3c;
+}

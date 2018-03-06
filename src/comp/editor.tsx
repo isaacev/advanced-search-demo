@@ -2,6 +2,7 @@ import * as React from 'react'
 import Oracle, * as oracle from '../lang/oracle'
 import Grammar from '../grammar'
 import { Input, SpecialKey } from './input'
+import { Validator } from './validator'
 import { Ghost } from './ghost'
 import { Guesses, Guess } from './guesses'
 import './editor.css'
@@ -175,6 +176,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
           onChange={this.handleChange}
           onSpecialKey={this.handleSpecialKey}
         />
+        <Validator query={this.state.literal} />
         {(this.state.pending > NONE_PENDING) && (
           <Ghost
             literal={this.state.literal}
