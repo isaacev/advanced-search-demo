@@ -50,18 +50,18 @@ export class Input extends React.PureComponent<InputProps> {
       40: 'down',
     }
 
-    if (event.keyCode === 8) {
+    if (event.keyCode === 8 && this.props.input.value === '') {
       if (event.metaKey || event.ctrlKey) {
         event.preventDefault()
         event.stopPropagation()
         this.props.onSpecialKey('ctrl-backspace')
         return
-      } else if (this.props.input.value === '') {
-        event.preventDefault()
-        event.stopPropagation()
-        this.props.onSpecialKey('backspace')
-        return
       }
+
+      event.preventDefault()
+      event.stopPropagation()
+      this.props.onSpecialKey('backspace')
+      return
     }
 
     // Ctrl+Z and Ctrl+Y (Windows for undo/redo)
