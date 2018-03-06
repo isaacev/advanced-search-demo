@@ -30,3 +30,13 @@ export class FilterSyntax {
     }
   }
 }
+
+export class Filter {
+  public type : Type
+  public name : string
+
+  constructor (type: Type, name: string) {
+    this.type = type
+    this.name = name
+  }
+}

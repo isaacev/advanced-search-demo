@@ -78,6 +78,11 @@ export default class Grammar {
     }
   }
 
+  public isSubtypeOf (sub: Type, sup: Type) {
+    const allSupertypes = this.allSupertypes(sub)
+    return allSupertypes.indexOf(sup) > -1
+  }
+
   public newOperator (opts: OperatorOptions) {
     const type = this.getType(opts.type)
     this.operators.push(new OperatorSyntax(opts.symbol, type, opts.aliases))

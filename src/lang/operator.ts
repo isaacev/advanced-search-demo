@@ -34,3 +34,13 @@ export class OperatorSyntax {
     }
   }
 }
+
+export class Operator {
+  public type   : Type
+  public symbol : string
+
+  constructor (type: Type, symbol: string) {
+    this.type = type
+    this.symbol = symbol
+  }
+}

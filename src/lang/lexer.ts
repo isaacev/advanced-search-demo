@@ -77,6 +77,23 @@ export default class Lexer {
     this.stack = Lexer.richTokens(raw, grammar)
   }
 
+  firstPosition () {
+    if (this.stack.length === 0) {
+      return 0
+    } else {
+      return this.stack[0].pos
+    }
+  }
+
+  lastPosition () {
+    if (this.stack.length === 0) {
+      return 0
+    } else {
+      const lastTok = this.stack[this.stack.length - 1]
+      return lastTok.pos + lastTok.lexeme.length
+    }
+  }
+
   peek () {
     if (this.stack.length <= this.pointer) {
       return null
