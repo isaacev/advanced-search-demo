@@ -209,6 +209,11 @@ export class Editor extends React.Component<EditorProps, EditorState> {
         const predicate = Validate.predicate(this.state.input.value, Grammar)
         if (predicate) {
           this.handleCommitPredicateClick(predicate)
+        } else if (this.state.advice.pending) {
+          const value = this.state.input.value
+          const pending = this.state.advice.pending
+          const ghost = Ghost.getGhost(value, pending)
+          this.updateInput(this.state.input.setValue(value + ghost))
         }
         break
       case 'esc':
