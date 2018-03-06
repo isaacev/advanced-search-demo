@@ -1,10 +1,13 @@
 import * as React from 'react'
+import { PredicatePlaceholder } from '../lang/predicate'
+import { Ghost } from './ghost'
 import './input.css'
 
 export type SpecialKey = 'tab' | 'enter' | 'up' | 'down' | 'esc' | 'undo' | 'redo'
 
 interface InputProps {
   value        : string
+  pending      : PredicatePlaceholder | null
   onChange     : (newValue: string) => void
   onSpecialKey : (key: SpecialKey) => void
 }
@@ -64,16 +67,23 @@ export class Input extends React.PureComponent<InputProps> {
 
   render () {
     return (
-      <input
-        id="input"
-        type="text"
-        autoFocus={true}
-        spellCheck={false}
-        value={this.props.value}
-        onChange={this.handleChange}
-        onKeyDown={this.handleKeyDown}
-        ref={self => this.inputElementRef = self}
-      />
+      <div id="editor-input">
+        <input
+          type="text"
+          autoFocus={true}
+          spellCheck={false}
+          value={this.props.value}
+          onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
+          ref={self => this.inputElementRef = self}
+        />
+        {(this.props.pending !== null) && (
+          <Ghost
+            literal={this.props.value}
+            guess={this.props.pending}
+          />
+        )}
+      </div>
     )
   }
 }

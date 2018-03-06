@@ -11,18 +11,19 @@ span.predicate span {
   line-height: 22px;
 }
 
-span.predicate span + span {
-  margin-left: 4px;
-}
-
 span.predicate span.filter {
   background: rgba(46, 204, 113, 0.3);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 span.predicate span.operator {
   background: rgba(231, 76, 60, 0.3);
+  border-radius: 0;
 }
 
 span.predicate span.argument {
   background: rgba(52, 152, 219, 0.3);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }

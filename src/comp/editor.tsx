@@ -7,6 +7,8 @@ import { Validator } from './validator'
 import { Ghost } from './ghost'
 import { Guesses, Guess } from './guesses'
 import { PredicateSpan } from './predicate'
+import { Flexible } from './flexible'
+import { Predicates } from './predicates'
 import './editor.css'
 
 const NONE_PENDING = -1
@@ -20,7 +22,7 @@ interface EditorState {
   guesses : PredicatePlaceholder[]
   pending : number
   history : { past : string[], future : string[] },
-  already : Predicate[]
+  chosen  : Predicate[]
 }
 
 export class Editor extends React.Component<EditorProps, EditorState> {
@@ -37,7 +39,7 @@ export class Editor extends React.Component<EditorProps, EditorState> {
       guesses: Oracle.guess('', Grammar),
       pending: NONE_PENDING,
       history: { past: [], future: [] },
-      already: [],
+      chosen: [],
     }
 
     if (this.props.onDebug) {
@@ -126,10 +128,13 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   }
 
   handlePredicateSelection (predicate: Predicate) {
-    console.log(predicate)
+    this.setQuery('')
     this.setState({
-      already: this.state.already.concat(predicate),
+      chosen: this.state.chosen.concat(predicate),
     })
+    if (this.inputComponentRef) {
+      this.inputComponentRef.focus()
+    }
   }
 
   appendHistory (state: string) {
@@ -180,28 +185,29 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   }
 
   render () {
+    const guess = (this.state.pending > NONE_PENDING)
+      ? this.state.guesses[this.state.pending]
+      : null
+
     return (
       <header id="editor">
-        <div className="flexible">
-          <p className="predicates">
-            {this.state.already.map((predicate, i) => {
-              return <PredicateSpan key={i} predicate={predicate} />
-            })}
-          </p>
+        <Flexible>
+          {(this.state.chosen.length > 0) && (
+            <Predicates>
+              {this.state.chosen.map((predicate, i) => {
+                return <PredicateSpan key={i} predicate={predicate} />
+              })}
+            </Predicates>
+          )}
           <Input
             ref={self => this.inputComponentRef = self}
             value={this.state.literal}
+            pending={guess}
             onChange={this.handleChange}
             onSpecialKey={this.handleSpecialKey}
           />
-        </div>
+        </Flexible>
         <Validator query={this.state.literal} onClick={this.handlePredicateSelection} />
-        {(this.state.pending > NONE_PENDING) && (
-          <Ghost
-            literal={this.state.literal}
-            guess={this.state.guesses[this.state.pending]}
-          />
-        )}
         <Guesses>
           {this.state.guesses.map((guess, i) =>
             <Guess

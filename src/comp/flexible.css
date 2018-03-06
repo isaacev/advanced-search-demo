@@ -1,0 +1,11 @@
+#editor-flexible {
+	display: flex;
+}
+
+#editor-flexible #editor-predicates {
+	flex-grow: 0;
+}
+
+#editor-flexible #editor-input {
+	flex-grow: 1;
+}
