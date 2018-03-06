@@ -131,7 +131,6 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   undo () {
     const depth = this.state.history.past.length
     if (depth === 0) {
-      console.log('no past')
       return
     }
 
@@ -151,7 +150,6 @@ export class Editor extends React.Component<EditorProps, EditorState> {
   redo () {
     const depth = this.state.history.future.length
     if (depth === 0) {
-      console.log('no future')
       return
     }
 
