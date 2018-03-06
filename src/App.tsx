@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Query } from './query'
+import { Editor } from './comp/editor'
 
 class JsonBlob extends React.PureComponent<{ title: string, data: Object }> {
   render () {
@@ -23,7 +23,7 @@ class App extends React.Component<{}, { debugging: { title: string, data: Object
   render() {
     return (
       <main>
-        <Query onDebug={debugging => this.setState({ debugging })} />
+        <Editor onDebug={debugging => this.setState({ debugging })} />
         {this.state.debugging.map((blob, i) => {
           return <JsonBlob key={i} title={blob.title} data={blob.data} />
         })}

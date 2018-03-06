@@ -1,0 +1,19 @@
+#ghost {
+  padding: 9px 16px 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font: inherit;
+  line-height: 32px;
+  z-index: 0;
+}
+
+#ghost span.hidden {
+  visibility: hidden;
+  white-space: pre;
+}
+
+#ghost span.ghost {
+  color: silver;
+  white-space: pre;
+}

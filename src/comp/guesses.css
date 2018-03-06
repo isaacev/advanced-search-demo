@@ -1,0 +1,62 @@
+#guesses {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#guesses.showing {
+  display: block;
+}
+
+#guesses.hidden {
+  display: none;
+}
+
+.guess {
+  height: 32px;
+  margin: 0;
+  padding: 4px 16px 4px 10px;
+  border-top: 1px solid #eee;
+  line-height: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.guess:hover {
+  background-color: #fafafa;
+}
+
+.guess.pending {
+  background-color: #f5f5f5;
+}
+
+.guess span {
+  height: 22px;
+  margin-right: 4px;
+  padding: 2px 6px;
+  display: inline-block;
+  border-radius: 2px;
+  line-height: 22px;
+}
+
+.guess span.filter {
+  background: rgba(46, 204, 113, 0.3);
+}
+
+.guess span.operator {
+  background: rgba(231, 76, 60, 0.3);
+}
+
+.guess span.argument {
+  background: rgba(52, 152, 219, 0.3);
+}
+
+.guess span.detail {
+  margin: 3px 0;
+  float: right;
+  font-style: italic;
+  font-size: 80%;
+  line-height: 22px;
+  color: gray;
+}
