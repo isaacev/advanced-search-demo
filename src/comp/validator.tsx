@@ -75,7 +75,7 @@ export class Validator extends React.Component<ValidatorProps, ValidatorState> {
     try {
       const predicate = Compile.predicate(query, Grammar)
       this.setState({
-        info: '',
+        info: 'add to query',
         status: Status.okay,
         predicate,
       })

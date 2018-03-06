@@ -16,8 +16,7 @@
 }
 
 #validator.hidden p.info,
-#validator.waiting p.info,
-#validator.okay p.info {
+#validator.waiting p.info {
   display: none;
 }
 
