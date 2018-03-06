@@ -2,7 +2,7 @@ import { Type } from './type'
 import Lexer, * as lexer from './lexer'
 import Grammar from './grammar'
 import * as errors from './errors'
-import * as strings from './strings'
+import * as strings from '../strings'
 
 export interface MacroOptions {
   template    : string

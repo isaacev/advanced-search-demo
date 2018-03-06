@@ -1,5 +1,5 @@
 import { Type } from './type'
-import * as strings from './strings'
+import * as strings from '../strings'
 
 export interface OperatorOptions {
   symbol   : string

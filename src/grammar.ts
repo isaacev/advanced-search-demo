@@ -1,5 +1,5 @@
 import Grammar from './lang/grammar'
-import * as strings from './lang/strings'
+import * as strings from './strings'
 import { Example } from './lang/macro'
 
 function wordToMilliseconds (word: string) {

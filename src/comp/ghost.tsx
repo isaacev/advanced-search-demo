@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { PredicatePlaceholder } from '../lang/predicate'
-import * as strings from '../lang/strings'
+import * as strings from '../strings'
 import './ghost.css'
 
 interface GhostProps {
