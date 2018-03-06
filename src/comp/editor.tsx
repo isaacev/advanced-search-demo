@@ -1,5 +1,6 @@
 import * as React from 'react'
-import Oracle, * as oracle from '../lang/oracle'
+import Oracle from '../lang/oracle'
+import { PredicatePlaceholder } from '../lang/predicate'
 import Grammar from '../grammar'
 import { Input, SpecialKey } from './input'
 import { Validator } from './validator'
@@ -15,7 +16,7 @@ interface EditorProps {
 
 interface EditorState {
   literal : string
-  guesses : oracle.Guess[]
+  guesses : PredicatePlaceholder[]
   pending : number
   history : { past : string[], future : string[] },
 }
@@ -113,8 +114,8 @@ export class Editor extends React.Component<EditorProps, EditorState> {
     }
   }
 
-  handleClick (guess: oracle.Guess) {
-    this.setQuery(guess.toString(false))
+  handleClick (guess: PredicatePlaceholder) {
+    this.setQuery(guess.toString())
     if (this.inputComponentRef) {
       this.inputComponentRef.focus()
     }

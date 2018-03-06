@@ -1,103 +1,10 @@
 import { Type } from './type'
-import { Example } from './macro'
+import { Filter } from './filter'
+import { OperatorPlaceholder, Operator } from './operator'
+import { ArgumentPlaceholder } from './argument'
+import { PredicatePlaceholder } from './predicate'
 import Grammar from './grammar'
 import Lexer, { RichToken } from './lexer'
-
-class FilterGuess {
-  public name : string
-  public type : Type
-
-  constructor (name: string, type: Type) {
-    this.name = name
-    this.type = type
-  }
-}
-
-class OperatorGuess {
-  public isPlaceholder : boolean
-  public symbol?       : string
-
-  constructor (isPlaceholder: true)
-  constructor (isPlaceholder: false, symbol: string)
-  constructor (isPlaceholder: boolean, symbol?: string) {
-    this.isPlaceholder = isPlaceholder
-    this.symbol = symbol
-  }
-}
-
-class ArgumentGuess {
-  public isPlaceholder : boolean
-  public type          : Type
-  public example?      : Example
-
-  constructor (isPlaceholder: true, type: Type)
-  constructor (isPlaceholder: false, type: Type, example: Example)
-  constructor (isPlaceholder: boolean, type: Type, example?: Example) {
-    this.isPlaceholder = isPlaceholder
-    this.type = type
-    this.example = example
-  }
-}
-
-export class Guess {
-  private filter   : FilterGuess
-  private operator : OperatorGuess
-  private argument : ArgumentGuess
-
-  constructor (filter: FilterGuess, operator: OperatorGuess, argument: ArgumentGuess) {
-    this.filter = filter
-    this.operator = operator
-    this.argument = argument
-  }
-
-  name () {
-    return this.filter.name
-  }
-
-  type () {
-    return this.argument.type
-  }
-
-  hasSymbol () {
-    return this.operator.isPlaceholder === false
-  }
-
-  symbol () {
-    if (this.operator.isPlaceholder) {
-      throw new Error('cannot get symbol')
-    }
-    return this.operator.symbol as string
-  }
-
-  hasExample () {
-    return this.argument.isPlaceholder === false
-  }
-
-  example () {
-    if (this.argument.isPlaceholder) {
-      throw new Error('cannot get example')
-    }
-    return this.argument.example as Example
-  }
-
-  toString (withPlaceholders: boolean = true) {
-    let guess = this.name()
-    if (this.hasSymbol()) {
-      guess += ' ' + this.symbol()
-      if (this.hasExample()) {
-        return guess + ' ' + this.example()
-      } else if (withPlaceholders) {
-        return guess + ` <${this.type()}>`
-      } else {
-        return guess + ' '
-      }
-    } else if (withPlaceholders) {
-      return guess + ` <operator> <${this.type()}>`
-    } else {
-      return guess + ' '
-    }
-  }
-}
 
 /**
  * The predictor takes the rules described by the Lexer and the Grammar to
@@ -145,7 +52,7 @@ export default class Oracle {
     return Oracle.predicate(lexer, grammar)
   }
 
-  private static predicate (lexer: Lexer, grammar: Grammar): Guess[] {
+  private static predicate (lexer: Lexer, grammar: Grammar): PredicatePlaceholder[] {
     if (lexer.peek() === null) {
       /**
        * The language expected the beginning of a filter but instead found an
@@ -153,10 +60,10 @@ export default class Oracle {
        * the breadth of guesses, offer 1 guess for every filter.
        */
       return grammar.filters.map(f => {
-        const filter = new FilterGuess(f.name, f.type)
-        const operator = new OperatorGuess(true)
-        const argument = new ArgumentGuess(true, f.type)
-        return new Guess(filter, operator, argument)
+        const filter = new Filter(f.type, f.name)
+        const operator = new OperatorPlaceholder(f.type)
+        const argument = new ArgumentPlaceholder(f.type)
+        return new PredicatePlaceholder(filter, operator, argument)
       })
     }
 
@@ -172,21 +79,21 @@ export default class Oracle {
       const possibleFilters = grammar.filters.filter(f => {
         return f.prefixedBy(first.lexeme)
       }).map(f => {
-        return new FilterGuess(f.name, f.type)
+        return new Filter(f.type, f.name)
       })
 
       if (possibleFilters.length === 1) {
         const filter = possibleFilters[0]
         return grammar.compatibleOperators(filter.type).map(op => {
-          const operator = new OperatorGuess(false, op.symbol)
-          const argument = new ArgumentGuess(true, filter.type)
-          return new Guess(filter, operator, argument)
+          const operator = new Operator(filter.type, op.symbol)
+          const argument = new ArgumentPlaceholder(filter.type)
+          return new PredicatePlaceholder(filter, operator, argument)
         })
       } else {
         return possibleFilters.map(filter => {
-          const operator = new OperatorGuess(true)
-          const argument = new ArgumentGuess(true, filter.type)
-          return new Guess(filter, operator, argument)
+          const operator = new OperatorPlaceholder(filter.type)
+          const argument = new ArgumentPlaceholder(filter.type)
+          return new PredicatePlaceholder(filter, operator, argument)
         })
       }
     }
@@ -201,7 +108,7 @@ export default class Oracle {
     const matchingFilters = grammar.filters.filter(f => {
       return f.name === first.lexeme
     }).map(f => {
-      return new FilterGuess(f.name, f.type)
+      return new Filter(f.type, f.name)
     })
 
     /**
@@ -215,7 +122,7 @@ export default class Oracle {
         const possibleOperators = grammar.compatibleOperators(filter.type).filter(op => {
           return op.prefixedBy(second.lexeme)
         }).map(op => {
-          return new OperatorGuess(false, op.symbol)
+          return new Operator(filter.type, op.symbol)
         })
 
         if (possibleOperators.length === 1) {
@@ -223,19 +130,19 @@ export default class Oracle {
           const examples = Oracle.argument(filter.type, lexer, grammar)
 
           const newGuesses = examples.map(argument => {
-            return new Guess(filter, operator, argument)
+            return new PredicatePlaceholder(filter, operator, argument)
           })
 
           return guesses.concat(newGuesses)
         } else {
           const newGuesses = possibleOperators.map(operator => {
-            const argument = new ArgumentGuess(true, filter.type)
-            return new Guess(filter, operator, argument)
+            const argument = new ArgumentPlaceholder(filter.type)
+            return new PredicatePlaceholder(filter, operator, argument)
           })
 
           return guesses.concat(newGuesses)
         }
-      }, [] as Guess[])
+      }, [] as PredicatePlaceholder[])
     }
 
     return matchingFilters.reduce((guesses, filter) => {
@@ -247,7 +154,7 @@ export default class Oracle {
       const matchingOperators = grammar.compatibleOperators(filter.type).filter(op => {
         return op.hasAlias(second.lexeme)
       }).map(op => {
-        return new OperatorGuess(false, op.symbol, )
+        return new Operator(filter.type, op.symbol)
       })
 
       /**
@@ -262,17 +169,17 @@ export default class Oracle {
       const examples = Oracle.argument(filter.type, lexer, grammar)
       const newGuesses = examples.reduce((guesses, argument) => {
         const newGuesses = matchingOperators.map(operator => {
-          return new Guess(filter, operator, argument)
+          return new PredicatePlaceholder(filter, operator, argument)
         })
 
         return guesses.concat(newGuesses)
-      }, [] as Guess[])
+      }, [] as PredicatePlaceholder[])
 
       return guesses.concat(newGuesses)
-    }, [] as Guess[])
+    }, [] as PredicatePlaceholder[])
   }
 
-  private static argument (type: Type, lexer: Lexer, grammar: Grammar): ArgumentGuess[] {
+  private static argument (type: Type, lexer: Lexer, grammar: Grammar): ArgumentPlaceholder[] {
     return grammar.compatibleMacros(type).reduce((guesses, m) => {
       /**
        * If there are no upcoming tokens, every compatible macro should return
@@ -281,7 +188,7 @@ export default class Oracle {
       if (lexer.peek() === null) {
         const examples = m.examples([])
         return guesses.concat(examples.map(example => {
-          return new ArgumentGuess(false, type, example)
+          return new ArgumentPlaceholder(type, example)
         }))
       }
 
@@ -300,8 +207,8 @@ export default class Oracle {
 
       const examples = m.examples(attempt.tokens.map(t => t.lexeme))
       return guesses.concat(examples.map(example => {
-        return new ArgumentGuess(false, type, example)
+        return new ArgumentPlaceholder(type, example)
       }))
-    }, [] as ArgumentGuess[])
+    }, [] as ArgumentPlaceholder[])
   }
 }

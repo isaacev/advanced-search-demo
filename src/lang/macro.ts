@@ -44,14 +44,6 @@ export class Example {
     this.detail = detail
   }
 
-  hasDetails () {
-    return (typeof this.detail === 'string')
-  }
-
-  details () {
-    return this.detail as string
-  }
-
   toString () {
     return this.preview
   }

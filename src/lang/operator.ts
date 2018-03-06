@@ -35,12 +35,41 @@ export class OperatorSyntax {
   }
 }
 
-export class Operator {
-  public type   : Type
+export class OperatorPlaceholder {
+  public type : Type
+
+  constructor (type: Type) {
+    this.type = type
+  }
+
+  toJSON (): Object {
+    return {
+      type: this.type,
+      placeholder: true,
+    }
+  }
+
+  toString () {
+    return `<operator>`
+  }
+}
+
+export class Operator extends OperatorPlaceholder {
   public symbol : string
 
   constructor (type: Type, symbol: string) {
-    this.type = type
+    super(type)
     this.symbol = symbol
+  }
+
+  toJSON (): Object {
+    return {
+      type: this.type,
+      symbol: this.symbol,
+    }
+  }
+
+  toString () {
+    return this.symbol
   }
 }

@@ -39,4 +39,8 @@ export class Filter {
     this.type = type
     this.name = name
   }
+
+  toString () {
+    return this.name
+  }
 }
