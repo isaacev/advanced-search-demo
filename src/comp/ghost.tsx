@@ -20,8 +20,6 @@ export class Ghost extends React.PureComponent<GhostProps> {
     const normLiteral = Ghost.noramalize(literal)
     const normGuess = Ghost.noramalize(guess.toString())
 
-    console.log(guess.toString(), guess)
-
     if (strings.hasPrefix(normLiteral, normGuess)) {
       return normGuess.substring(normLiteral.length)
     } else {
