@@ -53,6 +53,7 @@ export default class Compile {
       throw new errors.SyntaxError(lexer.lastPosition(), `missing an argument`)
     }
 
+    let partial = false
     for (let macro of grammar.compatibleMacros(type)) {
       lexer.save()
       const attempt = macro.attempt(lexer, grammar)
@@ -61,10 +62,16 @@ export default class Compile {
       if (attempt.success) {
         const literal = attempt.tokens.map(t => t.lexeme).join(' ')
         return new Argument(type, literal, attempt.value)
+      } else {
+        partial = attempt.partial || partial
       }
     }
 
     const tok = lexer.next() as RichToken
-    throw new errors.SyntaxError(tok.pos, `cannot understand argument`)
+    if (partial) {
+      throw new errors.SyntaxError(tok.pos, `incomplete argument`)
+    } else {
+      throw new errors.SyntaxError(tok.pos, `unknown argument`)
+    }
   }
 }
