@@ -1,9 +1,9 @@
 #editor-predicates {
-	padding-top: 12px;
-	padding-left: 10px;
-	font: inherit;
+  padding-top: 12px;
+  padding-left: 10px;
+  font: inherit;
 }
 
 #editor-predicates span.predicate + span.predicate {
-	margin-left: 10px;
+  margin-left: 10px;
 }
